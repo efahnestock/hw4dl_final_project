@@ -29,7 +29,6 @@ class VariableBackbone(nn.Module):
       head_i = []
       for j in range(self.split_idx, len(self.layer_shapes)-1):
         head_i.append(nn.Linear(layer_shapes[j], layer_shapes[j+1]))
-        print(j)
         if j != len(self.layer_shapes)-2:
           head_i.append(nn.ReLU())
       heads.append(nn.Sequential(*head_i))
