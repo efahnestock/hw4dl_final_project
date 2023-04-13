@@ -23,7 +23,7 @@ class PolyData(Dataset):
         polyf : function
             polynomial function used to produce dataset.
         varf : function
-            function that represents variance as a function of x. make sure it's positive on [lower, upper].
+            function that represents variance as a function of x. MAKE SURE IT'S POSITIVE ON [lower, upper].
         gaps : List[Tuple]
             list of tuples which represent intervals where there are gaps in the data.
         lower : int
