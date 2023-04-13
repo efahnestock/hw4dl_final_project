@@ -2,7 +2,15 @@ import torch
 import torch.nn as nn
 
 class VariableBackbone(nn.Module):
-  def __init__(self, layer_shapes, split_idx:int, num_heads:int):
+  def __init__(self, layer_shapes:tuple, split_idx:int, num_heads:int):
+    """
+    Create a NN with variable amount of shared backbone 
+
+    @param layer_shapes: tuple of layer shapes eg. (input, hidden1, hidden2, output) 
+    @param split_idx: index of layer to split the backbone. Eg 2 would split after hidden2
+    @param num_heads: number of heads to create
+
+    """
     super().__init__()
     self.layer_shapes = layer_shapes
     self.split_idx = split_idx
