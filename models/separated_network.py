@@ -10,7 +10,7 @@ class ToyNet(nn.Module):
         self.fc3 = nn.Linear(10, 2)
 
     def forward(self, x):
-        z = F.relu(self.hid1(x))
-        z = F.relu(self.hid2(z))
+        z = F.relu(self.fc1(x))
+        z = F.relu(self.fc2(z))
         z = self.fc3(z)  # No activation
         return z
