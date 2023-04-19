@@ -26,15 +26,18 @@ def make_polyf(typex):
     else:
         raise ValueError(f"{typex} is not supported.")
 
-def eval(model, loader, criterion, device):
+def eval(model, model_type, loader, criterion, device):
     model.eval()
     total_loss = 0.0
     for inputs, labels in tqdm(loader):
         batch_loss = 0.0
         inputs, labels = torch.unsqueeze(inputs, 1).to(device), torch.unsqueeze(labels, 1).to(device)
         outputs = model(inputs)
-        for output in outputs:
-            batch_loss += criterion(output, labels)
+        if model_type == "shared":
+            for output in outputs:
+                batch_loss += criterion(output, labels)
+        else:
+            batch_loss = criterion(outputs, labels)
         total_loss += batch_loss.item()
     return total_loss / len(loader)
 
@@ -71,16 +74,16 @@ def train(args, device):
                 for output in outputs:
                     batch_loss += criterion(output, labels)
             else:
-                batch_loss = criterion(output, labels)
+                batch_loss = criterion(outputs, labels)
             batch_loss.backward()
             optimizer.step()
             total_train_loss += batch_loss.item()
 
         train_loss = total_train_loss / len(train_loader)
-        val_loss = eval(model, val_loader, criterion, device)
+        val_loss = eval(model, args.model_type, val_loader, criterion, device)
         print(f"Epoch {i}, train loss: {train_loss}, val loss: {val_loss}")
 
-    test_loss = eval(model, test_loader, criterion, device)
+    test_loss = eval(model, args.model_type, test_loader, criterion, device)
     print(f"Test loss: {test_loss}")
 
     print("Done :)")
