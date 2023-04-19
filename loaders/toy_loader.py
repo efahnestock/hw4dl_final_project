@@ -108,7 +108,7 @@ class PolyData(Dataset):
         return x_list, y_list
 
     def __getitem__(self, idx):
-        return self.x[idx], self.y[idx]
+        return self.x[idx].astype(np.float32), self.y[idx].astype(np.float32)
 
     def __len__(self):
         return self.size

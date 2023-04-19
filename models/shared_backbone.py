@@ -34,11 +34,12 @@ class VariableBackbone(nn.Module):
       heads.append(nn.Sequential(*head_i))
     self.heads = nn.ModuleList(heads)
 
-
   def forward(self, x):
-    raise NotImplementedError
-
-
+    x = self.shared_backbone(x)
+    outputs = []
+    for head in self.heads:
+      outputs.append(head(x))
+    return outputs
 
 if __name__ == "__main__":
   layer_shapes = [10, 20, 30, 40]
