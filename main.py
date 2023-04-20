@@ -23,7 +23,7 @@ if __name__ == '__main__':
     if args.device_type == "mps":
         device = "mps" if torch.backends.mps.is_available() else "cpu"
     else:
-        device = "cuda" if torch.backends.cuda.is_available() else "cpu"
+        device = "cuda" if torch.cuda.is_available() else "cpu"
     device = torch.device(device)
     print(f"Using device: {device}")
 
