@@ -1,5 +1,5 @@
 import argparse
-from train import train
+from hw4dl.train import train
 import torch
 
 def parse_options():
