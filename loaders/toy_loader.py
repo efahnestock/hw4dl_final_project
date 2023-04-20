@@ -51,7 +51,11 @@ class PolyData(Dataset):
         self.rng = np.random.default_rng(seed)
 
         # make sure gaps are in function range
-        assert gaps[0][0] >= lower and gaps[-1][1] <= upper, "Gap intervals must with within ['lower', 'upper']."
+        if len(self.gaps) == 0:
+            self.use_gaps = False
+        else:
+            self.use_gaps = True
+            assert gaps[0][0] >= lower and gaps[-1][1] <= upper, "Gap intervals must with within ['lower', 'upper']."
 
         self.x, self.y = self._construct_dataset()
 
@@ -71,27 +75,33 @@ class PolyData(Dataset):
 
         # convert gaps to valid intervals
         intervals = []
-        for idx in range(len(self.gaps)):
-            if idx == 0:
-                intervals.append((self.lower, self.gaps[0][0]))
-            elif idx == len(self.gaps) - 1:
-                intervals.extend([(self.gaps[-2][1], self.gaps[-1][0]), (self.gaps[-1][1], self.upper)])
-            else:
-                intervals.append((self.gaps[idx-1][1], self.gaps[idx][0]))
+        if self.use_gaps:
+            for idx in range(len(self.gaps)):
+                if idx == 0:
+                    intervals.append((self.lower, self.gaps[0][0]))
+                elif idx == len(self.gaps) - 1:
+                    intervals.extend([(self.gaps[-2][1], self.gaps[-1][0]), (self.gaps[-1][1], self.upper)])
+                else:
+                    intervals.append((self.gaps[idx-1][1], self.gaps[idx][0]))
+        else:
+            intervals = [(self.lower, self.upper)]
 
         # sample
         total_interval_size = sum(i[1] - i[0] for i in intervals)
         for idx in range(self.size):
             
-            # sample intervals according to their relative size to ensure [lower, upper] is uniform
-            bin = self.rng.choice(len(self.gaps) + 1, p=[(i[1] - i[0]) / total_interval_size for i in intervals])
-            
-            if bin == 0:
-                x = self.rng.uniform(low=self.lower, high=self.gaps[bin][0])
-            elif bin == len(self.gaps):
-                x = self.rng.uniform(low=self.gaps[-1][1], high=self.upper)
+            if self.use_gaps:
+                # sample intervals according to their relative size to ensure [lower, upper] is uniform
+                bin = self.rng.choice(len(self.gaps) + 1, p=[(i[1] - i[0]) / total_interval_size for i in intervals])
+                
+                if bin == 0:
+                    x = self.rng.uniform(low=self.lower, high=self.gaps[bin][0])
+                elif bin == len(self.gaps):
+                    x = self.rng.uniform(low=self.gaps[-1][1], high=self.upper)
+                else:
+                    x = self.rng.uniform(low=self.gaps[bin-1][1], high=self.gaps[bin][0])
             else:
-                x = self.rng.uniform(low=self.gaps[bin-1][1], high=self.gaps[bin][0])
+                x = self.rng.uniform(low=intervals[0][0], high=intervals[0][1])
             
             # check variance
             var_x = self.varf(x)
@@ -127,7 +137,7 @@ if __name__ == '__main__':
         return 0.5*x + 0.5
 
     # instantiate dataset and data loader
-    Data = PolyData(polyf, varf, gaps=[(0.5, 0.6), (0.1, 0.3)])
+    Data = PolyData(polyf, varf, gaps=[])
     dl = DataLoader(Data, batch_size=32, shuffle=True)
 
     # get data
