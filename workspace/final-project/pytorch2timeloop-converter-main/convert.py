@@ -1,2 +1,0 @@
-import torchvision.models as models
-import pytorch2timeloop

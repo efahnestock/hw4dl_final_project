@@ -1,16 +1,23 @@
 import torch.nn as nn
-import torch.nn.functional as F
 
 
 class ToyNet(nn.Module):
-    def __init__(self):
+    def __init__(self, num_layers, layer_shapes):
         super(ToyNet, self).__init__()
-        self.fc1 = nn.Linear(1, 10)
-        self.fc2 = nn.Linear(10, 10)
-        self.fc3 = nn.Linear(10, 1)
+        network = []
+        for i in range(num_layers):
+            network.append(nn.Linear(layer_shapes[i], layer_shapes[i+1]))
+            if i != num_layers-1:
+                network.append(nn.ReLU(inplace=True))
+        self.network = nn.Sequential(*network)
 
     def forward(self, x):
-        z = F.relu(self.fc1(x))
-        z = F.relu(self.fc2(z))
-        z = self.fc3(z)  # No activation
+        z = self.network(x)
         return z
+
+
+if __name__ == "__main__":
+    layer_shapes = [10, 20, 30, 40]
+    num_layers = 3
+    model = ToyNet(num_layers, layer_shapes)
+    print(model)
