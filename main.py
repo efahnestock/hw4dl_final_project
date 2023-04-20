@@ -10,7 +10,7 @@ def parse_options():
     parser.add_argument('--val_size', type=int, default=2000, help='Val dataset size')
     parser.add_argument('--test_size', type=int, default=2000, help='Test dataset size')
     parser.add_argument('--batch_size', type=int, default=128, help='Dataset batch size')
-    parser.add_argument('--model_type', type=str, default="shared", help="Type of model; one of [shared, separate]")
+    parser.add_argument('--model_type', type=str, default="shared", help="Type of model; one of [shared, single]")
     parser.add_argument('--split_idx', type=int, default=2, help="index of layer to split the backbone for a separated network. Eg 2 would split after hidden2")
     parser.add_argument('--num_heads', type=int, default=3, help="number of prediction heads for a separated network")
     parser.add_argument('--lr', type=float, default=1e-3, help="learning rate")

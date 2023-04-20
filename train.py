@@ -44,14 +44,14 @@ def eval(model, model_type, loader, criterion, device):
 def train(args, device):
     polyf, varf, gaps = make_polyf(args.polyf_type)
     train_dataset = PolyData(polyf, varf, gaps, size=args.train_size, seed=1111)
-    val_dataset = PolyData(polyf, varf, gaps, size=args.val_size, seed=2222)
-    test_dataset = PolyData(polyf, varf, gaps, size=args.test_size, seed=3333)
+    val_dataset = PolyData(polyf, varf, [], size=args.val_size, seed=2222)
+    test_dataset = PolyData(polyf, varf, [], size=args.test_size, seed=3333)
 
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=True)
     test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=True)
 
-    if args.model_type == "separate":
+    if args.model_type == "single":
         model = ToyNet()
     elif args.model_type == "shared":
         # FIX LAYER SHAPES
