@@ -7,6 +7,7 @@ import torch.optim as optim
 from models.separated_network import ToyNet
 from models.shared_backbone import VariableBackbone
 import numpy as np
+import datetime, json
 import pdb
 TOY_LAYER_SHAPES = [1, 10, 20, 10, 1]
 
@@ -85,6 +86,17 @@ def train(args, device):
 
     test_loss = eval(model, args.model_type, test_loader, criterion, device)
     print(f"Test loss: {test_loss}")
+
+    # save model with current date as filename 
+    weights_filename = f"weights/{datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d_%H:%M:%S')}.pt"
+    config_filename = f"weights/{datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d_%H:%M:%S')}.json"
+
+    print(f"Saving model and config")
+    save_metrics = dict(test_loss=test_loss)
+    save_metrics.update(vars(args))
+    torch.save(model.state_dict(), weights_filename)
+    with open(config_filename, "w") as f:
+      f.write(json.dumps(save_metrics, sort_keys=True, indent=2, separators=(',', ': ')))
 
     print("Done :)")
 
