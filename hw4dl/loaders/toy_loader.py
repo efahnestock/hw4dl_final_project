@@ -13,7 +13,7 @@ class PolyData(Dataset):
     Dataset for toy regression problem
     """
 
-    def __init__(self, polyf, varf, gaps, lower=-1, upper=1, size=1000, seed=1111):
+    def __init__(self, polyf, varf, gaps, lower=-1, upper=1, size=1000, seed=1111, scramble:bool=False, num_heads:int=1):
 
         """
         Construct dataset attricutes and construct dataset
@@ -34,6 +34,10 @@ class PolyData(Dataset):
             number of examples in dataset
         seed : int
             seed for random number generator
+        scramble : bool
+            whether to scramble the dataset -> changes output shape to (size, num_heads, 2)
+        num_heads : int
+            number of heads to use for multihead model -> only used if scramble is True
         """
 
         # functions for variance and polynomial
@@ -50,6 +54,9 @@ class PolyData(Dataset):
 
         self.rng = np.random.default_rng(seed)
 
+        self.scramble = scramble
+        self.num_heads = num_heads
+
         # make sure gaps are in function range
         if len(self.gaps) == 0:
             self.use_gaps = False
@@ -58,6 +65,30 @@ class PolyData(Dataset):
             assert gaps[0][0] >= lower and gaps[-1][1] <= upper, "Gap intervals must with within ['lower', 'upper']."
 
         self.x, self.y = self._construct_dataset()
+
+    def sample_xy(self, total_interval_size, intervals): 
+      if self.use_gaps:
+          # sample intervals according to their relative size to ensure [lower, upper] is uniform
+          bin = self.rng.choice(len(self.gaps) + 1, p=[(i[1] - i[0]) / total_interval_size for i in intervals])
+          
+          if bin == 0:
+              x = self.rng.uniform(low=self.lower, high=self.gaps[bin][0])
+          elif bin == len(self.gaps):
+              x = self.rng.uniform(low=self.gaps[-1][1], high=self.upper)
+          else:
+              x = self.rng.uniform(low=self.gaps[bin-1][1], high=self.gaps[bin][0])
+      else:
+          x = self.rng.uniform(low=intervals[0][0], high=intervals[0][1])
+      
+      # check variance
+      var_x = self.varf(x)
+      if var_x < 0:
+          raise ValueError('variance function is negative in provided polynomial interval')
+
+      # get poly out
+      y = self.polyf(x) + self.rng.normal(loc=0, scale=np.sqrt(self.varf(x)))
+      
+      return x,y
 
     def _construct_dataset(self):
         """
@@ -72,48 +103,35 @@ class PolyData(Dataset):
         """
         
         x_list, y_list = np.zeros((self.size,)), np.zeros((self.size,))
+        if self.scramble:
+          x_list = np.zeros((self.size, self.num_heads))
+          y_list = np.zeros((self.size, self.num_heads)) 
 
         # convert gaps to valid intervals
         intervals = []
         if self.use_gaps:
-            for idx in range(len(self.gaps)):
-                if idx == 0:
-                    intervals.append((self.lower, self.gaps[0][0]))
-                elif idx == len(self.gaps) - 1:
-                    intervals.extend([(self.gaps[-2][1], self.gaps[-1][0]), (self.gaps[-1][1], self.upper)])
-                else:
-                    intervals.append((self.gaps[idx-1][1], self.gaps[idx][0]))
+            assert len(self.gaps) > 0
+            intervals.append((self.lower, self.gaps[0][0]))
+            for idx in range(1, len(self.gaps)):
+                intervals.append((self.gaps[idx-1][1], self.gaps[idx][0]))
+            intervals.append((self.gaps[-1][1], self.upper))
         else:
             intervals = [(self.lower, self.upper)]
 
         # sample
         total_interval_size = sum(i[1] - i[0] for i in intervals)
         for idx in range(self.size):
-            
-            if self.use_gaps:
-                # sample intervals according to their relative size to ensure [lower, upper] is uniform
-                bin = self.rng.choice(len(self.gaps) + 1, p=[(i[1] - i[0]) / total_interval_size for i in intervals])
-                
-                if bin == 0:
-                    x = self.rng.uniform(low=self.lower, high=self.gaps[bin][0])
-                elif bin == len(self.gaps):
-                    x = self.rng.uniform(low=self.gaps[-1][1], high=self.upper)
-                else:
-                    x = self.rng.uniform(low=self.gaps[bin-1][1], high=self.gaps[bin][0])
-            else:
-                x = self.rng.uniform(low=intervals[0][0], high=intervals[0][1])
-            
-            # check variance
-            var_x = self.varf(x)
-            if var_x < 0:
-                raise ValueError('variance function is negative in provided polynomial interval')
-
-            # get poly out
-            y = self.polyf(x) + self.rng.normal(loc=0, scale=np.sqrt(self.varf(x)))
-            
+          if self.scramble:
+            for head in range(self.num_heads):
+              x, y = self.sample_xy(total_interval_size, intervals)
+              x_list[idx][head] = x
+              y_list[idx][head] = y
+          else:
+            x, y = self.sample_xy(total_interval_size, intervals)
             # append to lists
             x_list[idx] = x
             y_list[idx] = y
+
 
         return x_list, y_list
 
