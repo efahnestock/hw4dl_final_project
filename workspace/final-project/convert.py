@@ -22,10 +22,11 @@ def convert_VariableBackbone(net_params, device, top_dir):
     exception_module_names = []
     pytorch2timeloop.convert_model(net, input_shape, batch_size, sub_dir, top_dir, convert_fc, exception_module_names)
 
+
 if __name__ == "__main__":
 
     # results top directory
-    top_dir = 'workspace/final-project/layer_shapes'
+    top_dir = 'layer_shapes'
 
     # VariableBackbone
     convert_VariableBackbone(net_params={'layer_shapes' : [1, 20, 30, 40],
