@@ -1,5 +1,9 @@
 # Report Due Date: May 01, 2022, 11:59PM EST
 
+## Setting up the python package
+Run this from the top level directory (with `setup.py` in it)
+```pip install -e .```
+
 # Final Project Baselines
 For detailed instructions, please read [./workspace/final-project/README.md](./workspace/final-project/README.md). 
 
