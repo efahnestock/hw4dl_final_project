@@ -1,8 +1,9 @@
-import pytorch2timeloop
 import os
 import yaml
 from tqdm import tqdm
 from pathlib import Path
+import argparse
+from convert import convert_VariableBackbone
 
 
 class Profiler(object):
@@ -27,16 +28,6 @@ class Profiler(object):
         self.exception_module_names = exception_module_names
 
     def profile(self) -> dict:
-        # convert the model to timeloop files
-        pytorch2timeloop.convert_model(
-            self.model,
-            self.input_size,
-            self.batch_size,
-            self.sub_dir,
-            self.top_dir,
-            self.convert_fc,
-            self.exception_module_names
-        )
         layer_dir = self.base_dir/self.top_dir/self.sub_dir
         layer_files = os.listdir(layer_dir)
 
@@ -95,3 +86,38 @@ class Profiler(object):
                         layer_info[layer_id]['cycle'] = eval(cycle)
 
         return layer_info
+
+
+
+def get_model(model_type):
+    if model_type == 'VariableBackbone':
+        model = convert_VariableBackbone()
+    return model
+
+
+def benchmark(args):
+    model = get_model(args.model_type)
+    profiler = Profiler(
+        top_dir='workloads',
+        sub_dir=args.model_type,
+        timeloop_dir='simple_weight_stationary',
+        model=model,
+        input_size=args.input_size,
+        batch_size=args.batch_size,
+        exception_module_names=[],
+        convert_fc=True
+    )
+    profiler.profile()
+
+
+def parse_options():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--input_size', type=tuple, default=(1,1,1), help='Data example siz')
+    parser.add_argument('--batch_size', type=int, default=256, help='Dataset batch size')
+    parser.add_argument('--model_type', type=str, default="VariableBackbone", help="Name of model")
+    return parser.parse_args()
+
+
+if __name__ == "__main__":
+    args = parse_options()
+    benchmark(args)
