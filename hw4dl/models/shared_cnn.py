@@ -32,10 +32,11 @@ class VariableCNNBackbone(nn.Module):
                 c = layer_shapes[i]
 
         self.shared_backbone = nn.Sequential(*shared_backbone)
-
+        head_start_dim = c
         heads = []
         for i in range(self.num_heads):
             head_i = []
+            c = head_start_dim
             for j in range(self.split_idx, len(self.layer_shapes) - 1):
                 if layer_shapes[j] == -1:
                     head_i.append(nn.MaxPool2d(kernel_size=2, stride=2))
