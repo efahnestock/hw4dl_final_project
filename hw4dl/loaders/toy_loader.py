@@ -5,6 +5,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 import warnings
 
+def construct_intervals(use_gaps:bool, gaps:list, lower:float, upper:float)->list:
+    # convert gaps to valid intervals
+    intervals = []
+    if use_gaps:
+        assert len(gaps) > 0
+        intervals.append((lower, gaps[0][0]))
+        for idx in range(1, len(gaps)):
+            intervals.append((gaps[idx-1][1], gaps[idx][0]))
+        intervals.append((gaps[-1][1], upper))
+    else:
+        intervals = [(lower, upper)]
+    return intervals
 
 class PolyData(Dataset):
 
@@ -89,7 +101,7 @@ class PolyData(Dataset):
       y = self.polyf(x) + self.rng.normal(loc=0, scale=np.sqrt(self.varf(x)))
       
       return x,y
-
+       
     def _construct_dataset(self):
         """
         Randomly construct the polynormial dataset, taking into account the gap intervals and variance function
@@ -107,17 +119,7 @@ class PolyData(Dataset):
           x_list = np.zeros((self.size, self.num_heads))
           y_list = np.zeros((self.size, self.num_heads)) 
 
-        # convert gaps to valid intervals
-        intervals = []
-        if self.use_gaps:
-            assert len(self.gaps) > 0
-            intervals.append((self.lower, self.gaps[0][0]))
-            for idx in range(1, len(self.gaps)):
-                intervals.append((self.gaps[idx-1][1], self.gaps[idx][0]))
-            intervals.append((self.gaps[-1][1], self.upper))
-        else:
-            intervals = [(self.lower, self.upper)]
-
+        intervals = construct_intervals(self.use_gaps, self.gaps, self.lower, self.upper)
         # sample
         total_interval_size = sum(i[1] - i[0] for i in intervals)
         for idx in range(self.size):
@@ -134,6 +136,7 @@ class PolyData(Dataset):
 
 
         return x_list, y_list
+
 
     def __getitem__(self, idx):
         return self.x[idx].astype(np.float32), self.y[idx].astype(np.float32)

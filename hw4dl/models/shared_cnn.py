@@ -3,7 +3,7 @@ import torch.nn as nn
 import pdb
 
 class VariableCNNBackbone(nn.Module):
-    def __init__(self, layer_shapes: tuple, split_idx: int, num_heads: int):
+    def __init__(self, layer_shapes: tuple, split_idx: int, num_heads: int, kernel_size: int=3):
         """
         Create a NN with variable amount of shared backbone
 
@@ -26,22 +26,23 @@ class VariableCNNBackbone(nn.Module):
                 shared_backbone.append(nn.MaxPool2d(kernel_size=2, stride=2))
             else:
                 shared_backbone.append(
-                    nn.Conv2d(c, layer_shapes[i], kernel_size=3, stride=1, padding=1))
+                    nn.Conv2d(c, layer_shapes[i], kernel_size=kernel_size, stride=1, padding=1))
                 if i != len(self.layer_shapes) - 2:
                     shared_backbone.append(nn.ReLU())
                 c = layer_shapes[i]
 
         self.shared_backbone = nn.Sequential(*shared_backbone)
-
+        head_start_dim = c
         heads = []
         for i in range(self.num_heads):
             head_i = []
+            c = head_start_dim
             for j in range(self.split_idx, len(self.layer_shapes) - 1):
                 if layer_shapes[j] == -1:
                     head_i.append(nn.MaxPool2d(kernel_size=2, stride=2))
                 else:
                     head_i.append(
-                        nn.Conv2d(c, layer_shapes[j], kernel_size=3, stride=1, padding=1))
+                        nn.Conv2d(c, layer_shapes[j], kernel_size=kernel_size, stride=1, padding=1))
                     if j != len(self.layer_shapes) - 2:
                         head_i.append(nn.ReLU())
                     c = layer_shapes[j]
