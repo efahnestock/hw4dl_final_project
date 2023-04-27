@@ -32,8 +32,9 @@ def create_map2loc(polyf, varf, dir, gaps=[], x_bounds=(-1, 1), y_bounds=(-1, 1)
 
     # make sure gaps are in the bounds of the function
     if len(gaps) > 0:
-        assert all(gaps[i][0] >= x_bounds[0] and gaps[i][1] <= x_bounds[1] for i in range(len(gaps))) 
-        assert all(gaps[i][2] >= y_bounds[0] and gaps[i][3] <= y_bounds[1] for i in range(len(gaps))) 
+        assert all(gaps[i][0] >= x_bounds[0] and gaps[i][1] <= x_bounds[1] for i in range(len(gaps))), "gaps in the x direction leave the function domain"
+        assert all(gaps[i][2] >= y_bounds[0] and gaps[i][3] <= y_bounds[1] for i in range(len(gaps))), "gaps in the y direction leave the function domain" 
+        assert all(gaps[i][1] > gaps[i][0] and gaps[i][3] > gaps[i][2] for i in range(len(gaps))), "invalid gap dimension"
 
     # instantiate rng
     rng = np.random.default_rng(seed)
@@ -98,7 +99,7 @@ if __name__ == '__main__':
         return 0.5*x + 0.5*y + 1
 
     
-    create_map2loc(polyf, varf, dir, gaps=[(0.1, 0.8, 0.1, 0.8)], samples=100)
+    create_map2loc(polyf, varf, dir, gaps=[(0.1, 0.8, 0.1, 0.8)], samples=10000)
 
     df = pd.read_csv(os.path.join(dir, 'description.csv'))
     x = df['X'].to_numpy()
