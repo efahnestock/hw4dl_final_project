@@ -5,10 +5,11 @@ from hw4dl.models.separated_network import ToyNet
 from hw4dl.models.shared_backbone import VariableBackbone
 from hw4dl import ROOT_DIR
 
-def save_model(model:nn.Module, extra_metrics:dict, args):
+def save_model(model:nn.Module, extra_metrics:dict, args, save_dir:str=None):
   # save model with current date as filename 
-  weights_filename =os.path.join(ROOT_DIR, f"weights/{datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d_%H:%M:%S')}.pt")
-  config_filename = os.path.join(ROOT_DIR, f"weights/{datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d_%H:%M:%S')}.json")
+  base_dir = save_dir if save_dir is not None else os.path.join(ROOT_DIR, "weights")
+  weights_filename = os.path.join(base_dir, f"{datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d_%H:%M:%S')}.pt")
+  config_filename = os.path.join(base_dir, f"{datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d_%H:%M:%S')}.json")
 
   save_metrics = extra_metrics
   save_metrics.update(vars(args))

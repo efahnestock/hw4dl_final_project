@@ -67,7 +67,7 @@ def eval(model, model_type, scramble_batches, loader, criterion, device):
         total_loss += batch_loss.item()
     return total_loss / len(loader)
 
-def train(args, device):
+def train(args, device, save_path=None):
     polyf, varf, gaps = make_polyf(args.polyf_type)
     train_dataset = PolyData(polyf, varf, gaps, size=args.train_size, seed=1111, scramble=args.scramble_batches, num_heads=args.num_heads)
     val_dataset = PolyData(polyf, varf, gaps, size=args.val_size, seed=2222, scramble=args.scramble_batches, num_heads=args.num_heads)
@@ -116,7 +116,7 @@ def train(args, device):
     print(f"Test loss: {test_loss}")
 
     print(f"Saving model and config")
-    save_model(model, dict(test_loss=test_loss), args)
+    save_model(model, dict(test_loss=test_loss), args, save_dir=save_path)
 
     print("Done :)")
 

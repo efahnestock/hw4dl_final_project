@@ -21,8 +21,6 @@ def score_network_performance(model:nn.Module,
                              epi_threshold:float=0.1,
                              device:str="cpu",
                              )->plt.Axes:
-  fig, ax = plt.subplots()
-  ax.set_xlim(toy_loader.lower, toy_loader.upper)
   samples = np.linspace(toy_loader.lower, toy_loader.upper, 1000)
   var = toy_loader.varf(samples)
   # ax.plot(samples, toy_loader.polyf(samples), label="True Function")
@@ -49,18 +47,14 @@ def score_network_performance(model:nn.Module,
 
   means = means.detach().cpu().numpy()
   sigma = sigma.detach().cpu().numpy()
-  mean_mse = np.mean(np.square(means - toy_loader.polyf(samples)))
+  mean_mse = np.mean(np.square(means[mask] - toy_loader.polyf(samples[mask])))
+  mean_sigma = np.mean(np.square(np.square(sigma[mask]) - var[mask]))
   print(f"Mean MSE: {mean_mse}")
-  mean_sigma = np.mean(np.square(np.square(sigma) - var))
   print(f"Mean Sigma: {mean_sigma}")
   print(f"Percentage of samples classified correctly: {samples_correct/total_samples}")
+  return mean_mse, mean_sigma, samples_correct/total_samples
 
 
-  ax.plot(samples, means, label="Mean Prediction")
-  ax.fill_between(samples, means - np.square(sigma), means + np.square(sigma), alpha=0.5, label="Predicted Variance")
-  ax.fill_between(samples, means - np.square(epistemic_sigma), means + np.square(epistemic_sigma), alpha=0.5, label="Epistemic Variance")
-  ax.legend()
-  return fig, ax
 
 if __name__ == "__main__":
   most_recent_model = get_most_recent_model()
@@ -68,4 +62,4 @@ if __name__ == "__main__":
   polyf, varf, gaps = make_polyf(config["polyf_type"])
   train_dataset = PolyData(polyf, varf, gaps, size=config["train_size"], seed=1111)
 
-  score_network_performance(model, train_dataset, epi_threshold=0.1)
+  score_network_performance(model, train_dataset, epi_threshold=0.01)
