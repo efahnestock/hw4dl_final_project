@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from tqdm import tqdm
+from hw4dl import ROOT_DIR
 
 def create_map2loc(polyf, varf, dir, gaps=[], x_bounds=(-1, 1), y_bounds=(-1, 1), samples=1000, seed=1111):
 
@@ -90,7 +91,7 @@ def create_map2loc(polyf, varf, dir, gaps=[], x_bounds=(-1, 1), y_bounds=(-1, 1)
 
 if __name__ == '__main__':
 
-    dir = '../datasets/map2loc'
+    dir = os.path.join(ROOT_DIR, 'hw4dl/datasets/map2loc/')
 
     def polyf(x, y):
         return x ** 2 + y ** 2
@@ -99,7 +100,7 @@ if __name__ == '__main__':
         return 0.5*x + 0.5*y + 1
 
     
-    create_map2loc(polyf, varf, dir, gaps=[(0.1, 0.8, 0.1, 0.8)], samples=10000)
+    create_map2loc(polyf, varf, dir, gaps=[(0.1, 0.8, 0.1, 0.8)], samples=5)
 
     df = pd.read_csv(os.path.join(dir, 'description.csv'))
     x = df['X'].to_numpy()
