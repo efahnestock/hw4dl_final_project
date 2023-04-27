@@ -7,6 +7,7 @@ from hw4dl.models.shared_cnn import VariableCNNBackbone
 from hw4dl import ROOT_DIR
 import yaml
 from yaml.loader import SafeLoader
+import re
 
 def convert_VariableBackbone(net_params, device, top_dir, mode=None):
     """
@@ -53,7 +54,7 @@ def convert_VariableBackbone(net_params, device, top_dir, mode=None):
         # get layer files and sort by layer number
         layer_dir = os.path.join(top_dir, sub_dir)
         layer_files = os.listdir(layer_dir)
-        layer_files.sort(key=lambda x: x[-6])
+        layer_files.sort(key=lambda x: int(re.findall(r'\d+', x)[0]))
 
         # delete all but one head
         layer_files_del = layer_files[-num_heads+1:]
@@ -128,7 +129,7 @@ def convert_VariableCNNBackbone(net_params, device, top_dir, mode=None):
         # get layer files and sort by layer number
         layer_dir = os.path.join(top_dir, sub_dir)
         layer_files = os.listdir(layer_dir)
-        layer_files.sort(key=lambda x: x[-6])
+        layer_files.sort(key=lambda x: int(re.findall(r'\d+', x)[0]))
 
         # delete all but one head
         layer_files_del = layer_files[-num_heads+1:]
@@ -201,12 +202,12 @@ if __name__ == "__main__":
                              top_dir=top_dir,
                              mode='parallel')
 
-    # convert_VariableCNNBackbone(net_params={'layer_shapes' : (3, 16, -1, 32, 32, 64, -1),
-    #                                         'split_idx' : 2,
-    #                                         'num_heads' : 3},
-    #                             device='cuda:0',
-    #                             top_dir=top_dir,
-    #                             mode='serial')
+    convert_VariableCNNBackbone(net_params={'layer_shapes' : (3, 16, -1, 32, 32, 64, -1),
+                                            'split_idx' : 2,
+                                            'num_heads' : 3},
+                                device='cuda:0',
+                                top_dir=top_dir,
+                                mode='parallel')
 
     # ToyNet
     convert_ToyNet(net_params={'layer_shapes' : [1, 20, 30, 40],

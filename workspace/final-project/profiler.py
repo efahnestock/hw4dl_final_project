@@ -3,7 +3,11 @@ import yaml
 from tqdm import tqdm
 from pathlib import Path
 import argparse
-from convert import convert_VariableBackbone
+from convert import convert_VariableBackbone, convert_ToyNet
+from pytimeloop.app import ModelApp, MapperApp
+import torch
+from ruamel.yaml import YAML
+from ruamel.yaml.compat import StringIO
 
 
 class Profiler(object):
@@ -12,6 +16,7 @@ class Profiler(object):
                  top_dir,
                  timeloop_dir,
                  model,
+                 design,
                  input_size,
                  batch_size,
                  convert_fc,
@@ -21,6 +26,7 @@ class Profiler(object):
         self.sub_dir = sub_dir
         self.top_dir = top_dir
         self.model = model
+        self.design = design
         self.timeloop_dir = timeloop_dir
         self.input_size = input_size
         self.batch_size = batch_size
@@ -28,6 +34,9 @@ class Profiler(object):
         self.exception_module_names = exception_module_names
 
     def profile(self) -> dict:
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        convert_model(args.model_type, device, args.top_dir)
+
         layer_dir = self.base_dir/self.top_dir/self.sub_dir
         layer_files = os.listdir(layer_dir)
 
@@ -55,7 +64,7 @@ class Profiler(object):
             cwd = f"{self.base_dir/self.timeloop_dir/self.sub_dir/f'layer{layer_id}'}"
 
             timeloopcmd = f"timeloop-mapper " \
-            f"{self.base_dir/self.timeloop_dir/'arch/simple_weight_stationary.yaml'} " \
+            f"{self.base_dir/self.timeloop_dir/f'arch/{self.design}.yaml'} " \
             f"{self.base_dir/self.timeloop_dir/'arch/components/*.yaml'} " \
             f"{self.base_dir/self.timeloop_dir/'mapper/mapper.yaml'} " \
             f"{self.base_dir/self.timeloop_dir/'constraints/*.yaml'} " \
@@ -88,26 +97,77 @@ class Profiler(object):
         return layer_info
 
 
-
-def get_model(model_type):
-    if model_type == 'VariableBackbone':
-        model = convert_VariableBackbone()
-    return model
+"""
+Converter
+"""
 
 
-def benchmark(args):
-    model = get_model(args.model_type)
-    profiler = Profiler(
-        top_dir='workloads',
-        sub_dir=args.model_type,
-        timeloop_dir='simple_weight_stationary',
-        model=model,
-        input_size=args.input_size,
-        batch_size=args.batch_size,
-        exception_module_names=[],
-        convert_fc=True
-    )
-    profiler.profile()
+def convert_model(model_type, device, top_dir):
+    """
+    Converts model from PyTorch to Timeloop
+    :return:
+    """
+    with open(f"configs/{model_type}.yaml", 'r') as f:
+        params = yaml.safe_load(f)
+    print(params)
+    if model_type == 'ToyNet':
+        convert_ToyNet(params, device, top_dir)
+    elif model_type == 'VariableBackbone':
+        convert_VariableBackbone(params, device, top_dir)
+    return
+
+
+"""
+Mapper
+"""
+
+
+def dump_str(yaml_dict):
+    yaml = YAML(typ='safe')
+    yaml.version = (1, 2)
+    yaml.default_flow_style = False
+    stream = StringIO()
+    yaml.dump(yaml_dict, stream)
+    return stream.getvalue()
+
+
+def load_config(*paths):
+    yaml = YAML(typ='safe')
+    yaml.version = (1, 2)
+    total = None
+    def _collect_yaml(yaml_str, total):
+        new_stuff = yaml.load(yaml_str)
+        if total is None:
+            return new_stuff
+
+        for key, value in new_stuff.items():
+            if key == 'compound_components' and key in total:
+                total['compound_components']['classes'] += value['classes']
+            elif key in total:
+                raise RuntimeError(f'overlapping key: {key}')
+            else:
+                total[key] = value
+        return total
+
+    for path in paths:
+        if isinstance(path, str):
+            total = _collect_yaml(path, total)
+            continue
+        elif path.is_dir():
+            for p in path.glob('*.yaml'):
+                with p.open() as f:
+                    total = _collect_yaml(f.read(), total)
+        else:
+            with path.open() as f:
+                total = _collect_yaml(f.read(), total)
+    return total
+
+
+def run_timeloop_mapper(*paths):
+    yaml_str = dump_str(load_config(*paths))
+    mapper = MapperApp(yaml_str, '.')
+    result = mapper.run_subprocess()
+    return result
 
 
 def parse_options():
@@ -115,9 +175,22 @@ def parse_options():
     parser.add_argument('--input_size', type=tuple, default=(1,1,1), help='Data example siz')
     parser.add_argument('--batch_size', type=int, default=256, help='Dataset batch size')
     parser.add_argument('--model_type', type=str, default="VariableBackbone", help="Name of model")
+    parser.add_argument('--top_dir', type=str, default="layer_shapes", help="Directory with layer shapes")
+    parser.add_argument('--design', type=str, default="simple_weight_stationary", help="Architecture design")
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     args = parse_options()
-    benchmark(args)
+    profiler = Profiler(
+        top_dir=args.top_dir,
+        sub_dir=args.model_type,
+        timeloop_dir='timeloop_results',
+        model=args.model_type,
+        design=args.design,
+        input_size=args.input_size,
+        batch_size=args.batch_size,
+        exception_module_names=[],
+        convert_fc=True
+    )
+    profiler.profile()
