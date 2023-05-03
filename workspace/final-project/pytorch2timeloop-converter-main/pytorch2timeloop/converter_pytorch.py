@@ -101,11 +101,11 @@ Designed to extract info about convolutional layers from a model.
 Returns a nested list with information about each convolutional layer
 in the form of [in_ch, out_ch, kernel_w, kernel_h, w_stride, h_stride, w_pad, h_pad]
 '''
-def convert_model(model, input_size, batch_size, model_name, save_dir, convert_fc=False, exception_module_names=[]):
+def convert_model(model, input_size, batch_size, model_name, save_dir, convert_fc=False, exception_module_names=[], params=None):
 
     print("converting {} in {} model ...".format("nn.Conv2d" if not convert_fc else "nn.Conv2d and nn.Linear", model_name))
 
-    layer_data  = extract_layer_data(model, input_size, convert_fc, exception_module_names)
+    layer_data = extract_layer_data(model, input_size, convert_fc, exception_module_names)
     layer_list = []
 
     for layer in layer_data:
@@ -136,6 +136,11 @@ def convert_model(model, input_size, batch_size, model_name, save_dir, convert_f
     outdir = os.path.join(save_dir, model_name)
     if not os.path.exists(outdir):
         os.makedirs(outdir)
+    if params:
+        param_name = get_param_name(model_name, params)
+        paramdir = os.path.join(save_dir, model_name, param_name)
+        if not os.path.exists(paramdir):
+            os.makedirs(paramdir)
 
     # Modify (Feb 1, 2021) - Kyungmi
     # Remove relative path calling and replace with util function
@@ -155,7 +160,12 @@ def convert_model(model, input_size, batch_size, model_name, save_dir, convert_f
         problem = layer_list[i]
         layer_type = problem[0]
         file_name = model_name + '_' + 'layer' + str(i+1) + '.yaml'
-        file_path = os.path.abspath(os.path.join(save_dir, model_name, file_name))
+        # JR: update naming convention
+        if params:
+            param_name = get_param_name(model_name, params)
+            file_path = os.path.abspath(os.path.join(save_dir, model_name, param_name, file_name))
+        else:
+            file_path = os.path.abspath(os.path.join(save_dir, model_name, file_name))
         if layer_type == 'norm-conv' or layer_type == 'linear':
             rewrite_workload_bounds(file_path, problem)
         elif layer_type == 'depth-wise':
@@ -165,6 +175,15 @@ def convert_model(model, input_size, batch_size, model_name, save_dir, convert_f
             return
         
     print("conversion complete!\n")
+
+
+def get_param_name(model_name, params):
+    print(model_name)
+    if 'ToyNet' in model_name:
+        name = '%s_%s' % (str(params['num_layers']), "-".join(str(x) for x in params['layer_shapes']))
+    elif 'VariableBackbone' in model_name:
+        name = '%s_%s_%s' % ("-".join(str(x) for x in params['layer_shapes']), str(params['split_idx']), str(params['num_heads']))
+    return name
 
     
 def extract_layer_data(model, input_size, convert_fc=False, exception_module_names=[]):

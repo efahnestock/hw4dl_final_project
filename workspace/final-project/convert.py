@@ -1,6 +1,5 @@
 import pytorch2timeloop
 import os
-import torch
 from hw4dl.models.shared_backbone import VariableBackbone
 from hw4dl.models.separated_network import ToyNet
 from hw4dl.models.shared_cnn import VariableCNNBackbone
@@ -8,11 +7,13 @@ from hw4dl import ROOT_DIR
 import yaml
 from yaml.loader import SafeLoader
 import re
+import argparse
+import torch
 
-def convert_VariableBackbone(net_params, device, top_dir, mode=None):
+
+def convert_VariableBackbone(net_params, device, top_dir, mode=None, params=None):
     """
     Function to convert the VariableBackbone model to timeloop problem descriptions
-
     Parameters
     ----------
     net_params : dict
@@ -47,7 +48,7 @@ def convert_VariableBackbone(net_params, device, top_dir, mode=None):
     batch_size = 1
     convert_fc = True
     exception_module_names = []
-    pytorch2timeloop.convert_model(net, input_shape, batch_size, sub_dir, top_dir, convert_fc, exception_module_names)
+    pytorch2timeloop.convert_model(net, input_shape, batch_size, sub_dir, top_dir, convert_fc, exception_module_names, params)
 
     if mode == 'parallel':
 
@@ -57,18 +58,18 @@ def convert_VariableBackbone(net_params, device, top_dir, mode=None):
         layer_files.sort(key=lambda x: int(re.findall(r'\d+', x)[0]))
 
         # delete all but one head
-        layer_files_del = layer_files[-num_heads+1:]
+        layer_files_del = layer_files[-num_heads + 1:]
         for l in layer_files_del:
             os.remove(os.path.join(layer_dir, l))
-        layer_files = layer_files[:-num_heads+1]
-        
+        layer_files = layer_files[:-num_heads + 1]
+
         # add index for heads to Einsum where appropriate
         with open(os.path.join(layer_dir, layer_files[-1]), 'r') as f:
             problem = yaml.load(f, Loader=SafeLoader)
-            
+
             # update in instance
             problem['problem']['instance']['H'] = num_heads
-            
+
             # update in dimensions
             problem['problem']['shape']['dimensions'].append('H')
 
@@ -84,10 +85,10 @@ def convert_VariableBackbone(net_params, device, top_dir, mode=None):
     else:
         return
 
-def convert_VariableCNNBackbone(net_params, device, top_dir, mode=None):
+
+def convert_VariableCNNBackbone(net_params, device, top_dir, mode=None, params=None):
     """
     Function to convert the VariableBackbone model to timeloop problem descriptions
-
     Parameters
     ----------
     net_params : dict
@@ -122,7 +123,7 @@ def convert_VariableCNNBackbone(net_params, device, top_dir, mode=None):
     batch_size = 1
     convert_fc = True
     exception_module_names = []
-    pytorch2timeloop.convert_model(net, input_shape, batch_size, sub_dir, top_dir, convert_fc, exception_module_names)
+    pytorch2timeloop.convert_model(net, input_shape, batch_size, sub_dir, top_dir, convert_fc, exception_module_names, params)
 
     if mode == 'parallel':
 
@@ -132,18 +133,18 @@ def convert_VariableCNNBackbone(net_params, device, top_dir, mode=None):
         layer_files.sort(key=lambda x: int(re.findall(r'\d+', x)[0]))
 
         # delete all but one head
-        layer_files_del = layer_files[-num_heads+1:]
+        layer_files_del = layer_files[-num_heads + 1:]
         for l in layer_files_del:
             os.remove(os.path.join(layer_dir, l))
-        layer_files = layer_files[:-num_heads+1]
-        
+        layer_files = layer_files[:-num_heads + 1]
+
         # add index for heads to Einsum where appropriate
         with open(os.path.join(layer_dir, layer_files[-1]), 'r') as f:
             problem = yaml.load(f, Loader=SafeLoader)
-            
+
             # update in instance
             problem['problem']['instance']['H'] = num_heads
-            
+
             # update in dimensions
             problem['problem']['shape']['dimensions'].append('H')
 
@@ -159,10 +160,10 @@ def convert_VariableCNNBackbone(net_params, device, top_dir, mode=None):
     else:
         return
 
-def convert_ToyNet(net_params, device, top_dir):
+
+def convert_ToyNet(net_params, device, top_dir, params=None):
     """
     Function to convert the ToyNet model to timeloop problem descriptions
-
     Parameters
     ----------
     net_params : dict
@@ -173,7 +174,7 @@ def convert_ToyNet(net_params, device, top_dir):
     top_dir : str
         path to directory with all layer shape directories
     """
-    
+
     # extract parameters
     num_layers = net_params['num_layers']
     layer_shapes = net_params['layer_shapes']
@@ -187,30 +188,30 @@ def convert_ToyNet(net_params, device, top_dir):
     batch_size = 1
     convert_fc = True
     exception_module_names = []
-    pytorch2timeloop.convert_model(net, input_shape, batch_size, sub_dir, top_dir, convert_fc, exception_module_names)
+    pytorch2timeloop.convert_model(net, input_shape, batch_size, sub_dir, top_dir, convert_fc, exception_module_names, params)
+
+
+def parse_options():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--params', type=str, help='Name of params yaml')
+    parser.add_argument('--split_idx', type=int, default=2, help='Index of layer to split between backbone and heads')
+    parser.add_argument('--num_heads', type=int, default=3, help="Number of heads")
+    parser.add_argument('--mode', type=str, default="serial", help="Process heads: serial, parallel")
+    parser.add_argument('--model_type', type=str, default="VariableBackbone", help="Name of model")
+    parser.add_argument('--top_dir', type=str, default="layer_shapes", help="Directory with layer shapes")
+    return parser.parse_args()
+
+
 
 if __name__ == "__main__":
-
+    args = parse_options()
     # results top directory
-    top_dir = os.path.join(ROOT_DIR, "workspace/final-project/layer_shapes")
+    args.top_dir = os.path.join(ROOT_DIR, "workspace/final-project/layer_shapes")
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    with open(f"configs/{args.params}.yaml", 'r') as f:
+        params = yaml.safe_load(f)
 
-    # VariableBackbone
-    convert_VariableBackbone(net_params={'layer_shapes' : [1, 20, 30, 40],
-                                         'split_idx' : 2,
-                                         'num_heads' : 3},
-                             device='cuda:0',
-                             top_dir=top_dir,
-                             mode='parallel')
-
-    convert_VariableCNNBackbone(net_params={'layer_shapes' : (3, 16, -1, 32, 32, 64, -1),
-                                            'split_idx' : 2,
-                                            'num_heads' : 3},
-                                device='cuda:0',
-                                top_dir=top_dir,
-                                mode='parallel')
-
-    # ToyNet
-    convert_ToyNet(net_params={'layer_shapes' : [1, 20, 30, 40],
-                               'num_layers' : 3},
-                               device='cuda:0',
-                               top_dir=top_dir)
+    if args.model_type == 'ToyNet':
+        convert_ToyNet(params, device, args.top_dir, params=params)
+    elif args.model_type == 'VariableBackbone':
+        convert_VariableBackbone(params, device, args.top_dir, mode=params['mode'], params=params)
