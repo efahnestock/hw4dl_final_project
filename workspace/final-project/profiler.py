@@ -36,9 +36,11 @@ class Profiler(object):
 
     def profile(self) -> dict:
         param_dir = get_param_name(self.model, self.params)
-        if self.params['mode']:
-            self.sub_dir = self.sub_dir + f"_{self.params['mode']}"
-        layer_dir = self.base_dir/self.top_dir/self.sub_dir/param_dir
+        layer_dir = self.base_dir / self.top_dir / self.sub_dir
+        if param_dir:
+            if self.params['mode']:
+                self.sub_dir = self.sub_dir + f"_{self.params['mode']}"
+            layer_dir = os.path.join(layer_dir, param_dir)
         layer_files = os.listdir(layer_dir)
 
         # check duplicated layer info
@@ -56,32 +58,23 @@ class Profiler(object):
                         'num': 1
                     }
 
-        # run timeloop
-        print(f'running timeloop to get energy and latency...')
+        # Run timeloop mapper
+        #TODO: Generalize
         for layer_id in layer_info.keys():
-            os.makedirs(self.base_dir/self.timeloop_dir/self.sub_dir/f'layer{layer_id}', exist_ok=True)
-            print(self.base_dir/self.timeloop_dir/self.sub_dir/f'layer{layer_id}')
+            os.makedirs(self.base_dir / self.timeloop_dir / self.sub_dir / f'layer{layer_id}', exist_ok=True)
 
-        def get_cmd(layer_id):
-            cwd = f"{self.base_dir/self.timeloop_dir/self.sub_dir/f'layer{layer_id}'}"
+        for idx, file in enumerate(layer_files):
+            stats, loops = run_timeloop_mapper(
+                Path(f"{self.base_dir/self.timeloop_dir/'arch/system_arch_1x16.yaml'}"),
+                Path(f"{self.base_dir/self.timeloop_dir/'arch/components/'}"),
+                Path(f"{self.base_dir/self.timeloop_dir/'constraints/example_constraints.yaml'}"),
+                Path(f"{self.base_dir/self.timeloop_dir/'mapper/mapper.yaml'}"),
+                Path(f"{self.base_dir/args.top_dir/self.sub_dir/f'{file}'}")
+            )
+            with open(self.base_dir/self.timeloop_dir/self.sub_dir/f'layer{idx+1}'/f'timeloop-mapper.stats.txt', 'w') as fid:
+                fid.write(stats)
 
-            timeloopcmd = f"timeloop-mapper " \
-            f"{self.base_dir/self.timeloop_dir/f'arch/{self.design}.yaml'} " \
-            f"{self.base_dir/self.timeloop_dir/'arch/components/*.yaml'} " \
-            f"{self.base_dir/self.timeloop_dir/'mapper/mapper.yaml'} " \
-            f"{self.base_dir/self.timeloop_dir/'constraints/*.yaml'} " \
-            f"{self.base_dir/self.top_dir/self.sub_dir/self.sub_dir}_layer{layer_id}.yaml > /dev/null 2>&1"
-            return [cwd, timeloopcmd]
-
-        cmds_list = list(map(get_cmd, layer_info.keys()))
-
-        for cwd, cmd in tqdm(cmds_list):
-            os.chdir(cwd)
-            os.system(cmd)
-        os.chdir(self.base_dir)
-
-        print(f'timeloop running finished!')
-
+        # Collect stats
         for layer_id in layer_info.keys():
             with open(self.base_dir/self.timeloop_dir/self.sub_dir/f'layer{layer_id}'/f'timeloop-mapper.stats.txt', 'r') as fid:
                 lines = fid.read().split('\n')[-50:]
@@ -158,6 +151,8 @@ def get_param_name(model_name, params):
         name = '%s_%s' % (str(params['num_layers']), "-".join(str(x) for x in params['layer_shapes']))
     elif 'VariableBackbone' in model_name:
         name = '%s_%s_%s' % ("-".join(str(x) for x in params['layer_shapes']), str(params['split_idx']), str(params['num_heads']))
+    else:
+        name = None
     return name
 
 
@@ -169,14 +164,18 @@ def parse_options():
     parser.add_argument('--base_dir', type=str, help='Base directory')
     parser.add_argument('--top_dir', type=str, default="layer_shapes", help="Directory with layer shapes")
     parser.add_argument('--design', type=str, default="simple_weight_stationary", help="Architecture design")
-    parser.add_argument('--params', type=str, help='Name of params yaml')
+    parser.add_argument('--params', type=str, default=None, help='Name of params yaml')
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     args = parse_options()
-    with open(f"configs/{args.params}.yaml", 'r') as f:
-        params = yaml.safe_load(f)
+    if args.params:
+        with open(f"configs/{args.params}.yaml", 'r') as f:
+            params = yaml.safe_load(f)
+    else:
+        params = None
+
     if args.base_dir:
         base_dir = Path(args.base_dir)
     else:
