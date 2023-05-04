@@ -68,7 +68,7 @@ class Profiler(object):
                           f"{self.base_dir / self.timeloop_dir / 'arch/components/*.yaml'} " \
                           f"{self.base_dir / self.timeloop_dir / 'mapper/mapper.yaml'} " \
                           f"{self.base_dir / self.timeloop_dir / 'constraints/*.yaml'} " \
-                          f"{self.base_dir / self.top_dir / self.sub_dir / self.param_dir / f'layer{layer_id}.yaml'}"
+                          f"{self.base_dir / self.top_dir / self.sub_dir / self.param_dir / f'layer{layer_id}.yaml'} > /dev/null 2>&1"
             print(timeloopcmd)
             return [cwd, timeloopcmd]
 
@@ -79,37 +79,9 @@ class Profiler(object):
             os.system(cmd)
         os.chdir(self.base_dir)
 
-        print(f'timeloop running finished!')
+        print(f'Timeloop running finished!')
 
-        """
-        for idx, file in enumerate(layer_files):
-            stats, loops = run_timeloop_mapper(
-                Path(f"{self.base_dir/self.timeloop_dir/'arch'/f'{args.design}.yaml'}"),
-                Path(f"{self.base_dir/self.timeloop_dir/'arch/components/'}"),
-                Path(f"{self.base_dir/self.timeloop_dir/'constraints/*.yaml'}"),
-                Path(f"{self.base_dir/self.timeloop_dir/'mapper/mapper.yaml'}"),
-                Path(f"{self.base_dir/args.top_dir/self.sub_dir/f'{file}'}")
-            )
-            with open(self.base_dir/self.timeloop_dir/self.sub_dir/f'layer{idx+1}'/f'timeloop-mapper.stats.txt', 'w') as fid:
-                fid.write(stats)
-        """
-
-        # Collect stats
-        for layer_id in layer_info.keys():
-            with open(self.base_dir / self.timeloop_dir / self.sub_dir / self.param_dir / f'layer{layer_id}' / f'timeloop-mapper.stats.txt', 'r') as fid:
-                lines = fid.read().split('\n')[-50:]
-                for line in lines:
-                    if line.startswith('Energy'):
-                        energy = line.split(': ')[1].split(' ')[0]
-                        layer_info[layer_id]['energy'] = eval(energy)
-                    elif line.startswith('Area'):
-                        area = line.split(': ')[1].split(' ')[0]
-                        layer_info[layer_id]['area'] = eval(area)
-                    elif line.startswith('Cycles'):
-                        cycle = line.split(': ')[1]
-                        layer_info[layer_id]['cycle'] = eval(cycle)
-
-        return layer_info
+        return
 
 
 """
