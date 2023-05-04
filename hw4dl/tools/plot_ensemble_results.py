@@ -39,10 +39,9 @@ def plot_network_performance(model:nn.Module,
   print(epistemic_sigma)
   ax.plot(samples, means, label="Mean Prediction")
   ax.fill_between(samples, means - np.square(sigma), means + np.square(sigma), alpha=0.5, label="Predicted Variance")
-  ax.fill_between(samples, means - np.square(epistemic_sigma), means + np.square(epistemic_sigma), alpha=0.5, label="Epistemic Variance")
+  ax.fill_between(samples, means - epistemic_sigma, means + epistemic_sigma, alpha=0.5, label="Epistemic Sigma")
   ax.legend()
   return fig, ax
-
 
 def plot_cnn_performance(model, test_loader, savedir,device):
   from matplotlib.patches import Rectangle

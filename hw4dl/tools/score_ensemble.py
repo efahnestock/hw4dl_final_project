@@ -44,6 +44,9 @@ def score_network_performance(model:nn.Module,
   ) + np.sum(np.logical_and(np.logical_not(classified_data_region), np.logical_not(mask)))
   total_samples = samples.shape[0]
 
+  # positive all uncertainty in no data region minus all uncertainty in data region
+  epi_scores = -np.sum(mask * epistemic_sigma) + np.sum(np.logical_not(mask) * epistemic_sigma)
+
 
   means = means.detach().cpu().numpy()
   sigma = sigma.detach().cpu().numpy()
@@ -52,7 +55,7 @@ def score_network_performance(model:nn.Module,
   print(f"Mean MSE: {mean_mse}")
   print(f"Mean Sigma: {mean_sigma}")
   print(f"Percentage of samples classified correctly: {samples_correct/total_samples}")
-  return mean_mse, mean_sigma, samples_correct/total_samples
+  return mean_mse, mean_sigma, samples_correct/total_samples, epi_scores
 
 def get_mask_from_gaps(gaps, shape):
   mask = np.ones(shape)

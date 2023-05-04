@@ -26,27 +26,25 @@ def set_all_seeds(seed):
   np.random.seed(seed)
 
 def run_experiment(exp_config:ExpConfig):
-  exp_name = exp_config.name + "_" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-  base_exp_path = os.path.join(ROOT_DIR, "experiments", exp_name)
-  # create experiment directory
-  os.makedirs(base_exp_path)
-  # save experiment config
-  with open(os.path.join(base_exp_path, "config.json"), "w") as f:
-    json.dump(exp_config._asdict(), f)
+  # exp_name = exp_config.name + "_" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+  base_path = os.path.join(ROOT_DIR, "experiments")
+  # get most recent experiment directory
+  dirs = [os.path.join(base_path, d) for d in os.listdir(base_path) if os.path.isdir(os.path.join(base_path, d))]
+  dirs.sort(key=lambda x: os.path.getmtime(x))
+  base_exp_path = dirs[-1]
+
 
   results = dict(split_idx=[], mean_mse=[], sigma_mse=[], per_correct=[], epi_score=[])
 
-  set_all_seeds(exp_config.seed)
   for split_idx in exp_config.split_indexes:
-    # train network
+    set_all_seeds(exp_config.seed)
+
     args = parse_options()
     args.split_idx = split_idx
     args.device_type =  exp_config.device
     args.scrambe_batches = True
     split_idx_dir= os.path.join(base_exp_path, f"split_{split_idx}")
-    os.makedirs(split_idx_dir)
 
-    train(args=args, device=torch.device(args.device_type), save_path=split_idx_dir)
 
     model_filename = None 
     for file in os.listdir(split_idx_dir):
@@ -54,9 +52,10 @@ def run_experiment(exp_config:ExpConfig):
         model_filename = os.path.basename(file)[:-3]
     model, config = load_model(os.path.join(split_idx_dir, model_filename))
     # evaluate network performance
+
     polyf, varf, gaps = make_polyf(config["polyf_type"])
     train_dataset = PolyData(polyf, varf, gaps, size=config["train_size"], seed=1111)
-    mean_mse, sigma_mse, per_correct, epi_score = score_network_performance(model, train_dataset, 0.01)
+    mean_mse, sigma_mse, per_correct, epi_score = score_network_performance(model, train_dataset, 0.1)
     results["split_idx"].append(split_idx)
     results["mean_mse"].append(mean_mse)
     results["sigma_mse"].append(sigma_mse)
@@ -64,12 +63,13 @@ def run_experiment(exp_config:ExpConfig):
     results["epi_score"].append(epi_score)
     # print out performance 
 
-    # create plot
+    # # create plot
     fig, ax = plot_network_performance(model, train_dataset)
     fig.savefig(os.path.join(base_exp_path, f"{split_idx:03d}_performance.png"))
 
     # save results
     results_df = pd.DataFrame(results)
+    print(results_df)
     results_df.to_csv(os.path.join(base_exp_path, "results.csv"), index=False)
 
 if __name__ == "__main__":

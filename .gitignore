@@ -1,5 +1,6 @@
 weights/*.pt
 weights/*.json
 weights/**
+experiments/
 __pycache__/
 *.egg-info
