@@ -64,8 +64,8 @@ def run_experiment(exp_config:ExpConfig):
     # print out performance 
 
     # # create plot
-    # fig, ax = plot_network_performance(model, train_dataset)
-    # fig.savefig(os.path.join(base_exp_path, f"{split_idx:03d}_performance.png"))
+    fig, ax = plot_network_performance(model, train_dataset)
+    fig.savefig(os.path.join(base_exp_path, f"{split_idx:03d}_performance.png"))
 
     # save results
     results_df = pd.DataFrame(results)
@@ -76,7 +76,7 @@ if __name__ == "__main__":
   import argparse
   parser = argparse.ArgumentParser()
   parser.add_argument("--name", type=str, default="fc_experiment")
-  parser.add_argument("--split_indexes", type=int, nargs="+", default=[0, 1, 2, 3])
+  parser.add_argument("--split_indexes", type=int, nargs="+", default=[0, 1, 2, 3, 4, 5])
   parser.add_argument("--seed", type=int, default=1111)
   parser.add_argument("--device_type", type=str, default="cpu")
   args = parser.parse_args()
