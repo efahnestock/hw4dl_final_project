@@ -32,13 +32,14 @@ def set_all_seeds(seed):
 def run_experiment(exp_config:ExpConfig, args):
   exp_name = exp_config.name + "_" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
   base_exp_path = os.path.join(ROOT_DIR, "experiments", exp_name)
+  print(base_exp_path)
   # create experiment directory
   os.makedirs(base_exp_path)
   # save experiment config
   with open(os.path.join(base_exp_path, "config.json"), "w") as f:
     json.dump(exp_config._asdict(), f)
 
-  results = dict(split_idx=[], mean_mse=[], sigma_mse=[], per_correct=[])
+  results = dict(split_idx=[], mean_mse=[], sigma_mse=[], per_correct=[], epi_score=[])
 
   for split_idx in exp_config.split_indexes:
     set_all_seeds(exp_config.seed)
@@ -70,15 +71,16 @@ def run_experiment(exp_config:ExpConfig, args):
 
     # evaluate network performance
     test_dataset = Map2Loc(root_dir=f'/data/vision/phillipi/perception/hw4dl_final_project/hw4dl/datasets/map2loc_{args.task}_test', csv_file='description.csv')
-    mean_mse, sigma_mse, per_correct = score_cnn_performance(model, test_dataset, 0.01)
+    mean_mse, sigma_mse, per_correct, epi_score = score_cnn_performance(model, test_dataset, 0.01, split_idx)
     results["split_idx"].append(split_idx)
     results["mean_mse"].append(mean_mse)
     results["sigma_mse"].append(sigma_mse)
     results["per_correct"].append(per_correct)
+    results["epi_score"].append(epi_score)
     # print out performance
 
     # create plot
-    plot_cnn_performance(model, test_dataset, base_exp_path, device=args.device_type)
+    plot_cnn_performance(model, test_dataset, base_exp_path, args.device_type, split_idx)
     # fig.savefig(os.path.join(base_exp_path, f"{split_idx:03d}_performance.png"))
 
     # save results

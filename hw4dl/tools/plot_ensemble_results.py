@@ -43,7 +43,7 @@ def plot_network_performance(model:nn.Module,
   ax.legend()
   return fig, ax
 
-def plot_cnn_performance(model, test_loader, savedir,device):
+def plot_cnn_performance(model, test_loader, savedir,device, split_id):
   from matplotlib.patches import Rectangle
 
   testx, testy = np.meshgrid(np.arange(15), np.arange(15))
@@ -101,7 +101,7 @@ def plot_cnn_performance(model, test_loader, savedir,device):
       x1, y1 = gap[0], gap[2]
       rect = Rectangle((x1, y1), width, height, linewidth=2, edgecolor='red', facecolor='none')
       axes[i].add_patch(rect)
-  plt.savefig(os.path.join(savedir, "result_plot.png"))
+  plt.savefig(os.path.join(savedir, f"result_plot_split_{split_id}.png"))
 
 if __name__ == "__main__":
 

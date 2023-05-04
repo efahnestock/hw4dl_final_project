@@ -101,6 +101,9 @@ def score_cnn_performance(model:nn.Module,
   ) + np.sum(np.logical_and(np.logical_not(classified_data_region), np.logical_not(mask)))
   total_samples = len(testx) * len(testy)
 
+  # positive all uncertainty in no data region minus all uncertainty in data region
+  epi_scores = -np.sum(mask * epistemic_sigma) + np.sum(np.logical_not(mask) * epistemic_sigma)
+
   means_arr = means.detach().cpu().numpy()
   sigma_arr = sigma.detach().cpu().numpy()
   mean_mse = np.mean(np.square(means_arr[mask] - gt_mean[mask]))
@@ -108,7 +111,7 @@ def score_cnn_performance(model:nn.Module,
   print(f"Mean MSE: {mean_mse}")
   print(f"Mean Sigma: {mean_sigma}")
   print(f"Percentage of samples classified correctly: {samples_correct / total_samples}")
-  return mean_mse, mean_sigma, samples_correct/total_samples
+  return mean_mse, mean_sigma, samples_correct/total_samples, epi_scores
 
 if __name__ == "__main__":
   most_recent_model = get_most_recent_model()
