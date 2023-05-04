@@ -49,6 +49,7 @@ def convert_VariableBackbone(net_params, device, top_dir, model_name, mode=None,
     pytorch2timeloop.convert_model(net, input_shape, batch_size, sub_dir, top_dir, convert_fc, exception_module_names, params)
 
     if mode == 'parallel':
+        workloads_per_head = (len(layer_shapes) - 1) - split_idx
         param_dir = get_param_name(model_name, params)
         # get layer files and sort by layer number
         layer_dir = os.path.join(top_dir, sub_dir)
@@ -58,30 +59,32 @@ def convert_VariableBackbone(net_params, device, top_dir, model_name, mode=None,
         layer_files.sort(key=lambda x: int(re.findall(r'\d+', x)[0]))
 
         # delete all but one head
-        layer_files_del = layer_files[-num_heads + 1:]
+        layer_files_del = layer_files[-(num_heads-1)*workloads_per_head:]
         for l in layer_files_del:
             os.remove(os.path.join(layer_dir, l))
-        layer_files = layer_files[:-num_heads + 1]
+        layer_files = layer_files[:-(num_heads-1)*workloads_per_head]
 
         # add index for heads to Einsum where appropriate
-        with open(os.path.join(layer_dir, layer_files[-1]), 'r') as f:
-            problem = yaml.load(f, Loader=SafeLoader)
+        for l in range(len(layer_files)-workloads_per_head,len(layer_files)):
+            print(len(layer_files)-workloads_per_head,len(layer_files))
+            with open(os.path.join(layer_dir, layer_files[l]), 'r') as f:
+                problem = yaml.load(f, Loader=SafeLoader)
 
-            # update in instance
-            problem['problem']['instance']['H'] = num_heads
+                # update in instance
+                problem['problem']['instance']['H'] = num_heads
 
-            # update in dimensions
-            problem['problem']['shape']['dimensions'].append('H')
+                # update in dimensions
+                problem['problem']['shape']['dimensions'].append('H')
 
-            # update in data-spaces
-            data_spaces = problem['problem']['shape']['data-spaces']
-            for i, ds in enumerate(data_spaces):
-                if ds['name'] == 'Weights' or ds['name'] == 'Outputs':
-                    problem['problem']['shape']['data-spaces'][i]['projection'].append([['H']])
+                # update in data-spaces
+                data_spaces = problem['problem']['shape']['data-spaces']
+                for i, ds in enumerate(data_spaces):
+                    if ds['name'] == 'Weights' or ds['name'] == 'Outputs':
+                        problem['problem']['shape']['data-spaces'][i]['projection'].append([['H']])
 
-        # write changes
-        with open(os.path.join(layer_dir, layer_files[-1]), 'w') as f:
-            yaml.safe_dump(problem, f)
+            # write changes
+            with open(os.path.join(layer_dir, layer_files[l]), 'w') as f:
+                yaml.safe_dump(problem, f)
     else:
         return
 
@@ -124,6 +127,7 @@ def convert_VariableCNNBackbone(net_params, device, top_dir, model_name, mode=No
     pytorch2timeloop.convert_model(net, input_shape, batch_size, sub_dir, top_dir, convert_fc, exception_module_names, params)
 
     if mode == 'parallel':
+        workloads_per_head = (len(layer_shapes) - 1) - split_idx
         param_dir = get_param_name(model_name, params)
         # get layer files and sort by layer number
         layer_dir = os.path.join(top_dir, sub_dir)
@@ -133,30 +137,32 @@ def convert_VariableCNNBackbone(net_params, device, top_dir, model_name, mode=No
         layer_files.sort(key=lambda x: int(re.findall(r'\d+', x)[0]))
 
         # delete all but one head
-        layer_files_del = layer_files[-num_heads + 1:]
+        layer_files_del = layer_files[-(num_heads-1)*workloads_per_head:]
         for l in layer_files_del:
             os.remove(os.path.join(layer_dir, l))
-        layer_files = layer_files[:-num_heads + 1]
+        layer_files = layer_files[:-(num_heads-1)*workloads_per_head]
 
         # add index for heads to Einsum where appropriate
-        with open(os.path.join(layer_dir, layer_files[-1]), 'r') as f:
-            problem = yaml.load(f, Loader=SafeLoader)
+        for l in range(len(layer_files)-workloads_per_head,len(layer_files)):
+            print(len(layer_files)-workloads_per_head,len(layer_files))
+            with open(os.path.join(layer_dir, layer_files[l]), 'r') as f:
+                problem = yaml.load(f, Loader=SafeLoader)
 
-            # update in instance
-            problem['problem']['instance']['H'] = num_heads
+                # update in instance
+                problem['problem']['instance']['H'] = num_heads
 
-            # update in dimensions
-            problem['problem']['shape']['dimensions'].append('H')
+                # update in dimensions
+                problem['problem']['shape']['dimensions'].append('H')
 
-            # update in data-spaces
-            data_spaces = problem['problem']['shape']['data-spaces']
-            for i, ds in enumerate(data_spaces):
-                if ds['name'] == 'Weights' or ds['name'] == 'Outputs':
-                    problem['problem']['shape']['data-spaces'][i]['projection'].append([['H']])
+                # update in data-spaces
+                data_spaces = problem['problem']['shape']['data-spaces']
+                for i, ds in enumerate(data_spaces):
+                    if ds['name'] == 'Weights' or ds['name'] == 'Outputs':
+                        problem['problem']['shape']['data-spaces'][i]['projection'].append([['H']])
 
-        # write changes
-        with open(os.path.join(layer_dir, layer_files[-1]), 'w') as f:
-            yaml.safe_dump(problem, f)
+            # write changes
+            with open(os.path.join(layer_dir, layer_files[l]), 'w') as f:
+                yaml.safe_dump(problem, f)
     else:
         return
 
