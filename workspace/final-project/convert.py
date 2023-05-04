@@ -11,7 +11,7 @@ import argparse
 import torch
 
 
-def convert_VariableBackbone(net_params, device, top_dir, mode=None, params=None):
+def convert_VariableBackbone(net_params, device, top_dir, model_name, mode=None, params=None):
     """
     Function to convert the VariableBackbone model to timeloop problem descriptions
     Parameters
@@ -42,8 +42,6 @@ def convert_VariableBackbone(net_params, device, top_dir, mode=None, params=None
 
     # pytorch2timeloop
     sub_dir = 'VariableBackbone'
-    if mode:
-        sub_dir = sub_dir + f'_{mode}'
     input_shape = (1, 1, 1)
     batch_size = 1
     convert_fc = True
@@ -51,9 +49,11 @@ def convert_VariableBackbone(net_params, device, top_dir, mode=None, params=None
     pytorch2timeloop.convert_model(net, input_shape, batch_size, sub_dir, top_dir, convert_fc, exception_module_names, params)
 
     if mode == 'parallel':
-
+        param_dir = get_param_name(model_name, params)
         # get layer files and sort by layer number
         layer_dir = os.path.join(top_dir, sub_dir)
+        if param_dir:
+            layer_dir = os.path.join(layer_dir, param_dir)
         layer_files = os.listdir(layer_dir)
         layer_files.sort(key=lambda x: int(re.findall(r'\d+', x)[0]))
 
@@ -86,7 +86,7 @@ def convert_VariableBackbone(net_params, device, top_dir, mode=None, params=None
         return
 
 
-def convert_VariableCNNBackbone(net_params, device, top_dir, mode=None, params=None):
+def convert_VariableCNNBackbone(net_params, device, top_dir, model_name, mode=None, params=None):
     """
     Function to convert the VariableBackbone model to timeloop problem descriptions
     Parameters
@@ -117,8 +117,6 @@ def convert_VariableCNNBackbone(net_params, device, top_dir, mode=None, params=N
 
     # pytorch2timeloop
     sub_dir = 'VariableBackbone'
-    if mode:
-        sub_dir = sub_dir + f'_{mode}'
     input_shape = (3, 224, 224)
     batch_size = 1
     convert_fc = True
@@ -126,9 +124,11 @@ def convert_VariableCNNBackbone(net_params, device, top_dir, mode=None, params=N
     pytorch2timeloop.convert_model(net, input_shape, batch_size, sub_dir, top_dir, convert_fc, exception_module_names, params)
 
     if mode == 'parallel':
-
+        param_dir = get_param_name(model_name, params)
         # get layer files and sort by layer number
         layer_dir = os.path.join(top_dir, sub_dir)
+        if param_dir:
+            layer_dir = os.path.join(layer_dir, param_dir)
         layer_files = os.listdir(layer_dir)
         layer_files.sort(key=lambda x: int(re.findall(r'\d+', x)[0]))
 
@@ -191,11 +191,20 @@ def convert_ToyNet(net_params, device, top_dir, params=None):
     pytorch2timeloop.convert_model(net, input_shape, batch_size, sub_dir, top_dir, convert_fc, exception_module_names, params)
 
 
+def get_param_name(model_name, params):
+    print(model_name)
+    if 'ToyNet' in model_name:
+        name = '%slayers_%sshape' % (str(params['num_layers']), "-".join(str(x) for x in params['layer_shapes']))
+    elif 'VariableBackbone' in model_name:
+        name = '%sshape_%ssplit_%sheads_%s' % ("-".join(str(x) for x in params['layer_shapes']), str(params['split_idx']), str(params['num_heads']), params['mode'])
+    else:
+        name = None
+    return name
+
+
 def parse_options():
     parser = argparse.ArgumentParser()
     parser.add_argument('--params', type=str, help='Name of params yaml')
-    parser.add_argument('--split_idx', type=int, default=2, help='Index of layer to split between backbone and heads')
-    parser.add_argument('--num_heads', type=int, default=3, help="Number of heads")
     parser.add_argument('--mode', type=str, default="serial", help="Process heads: serial, parallel")
     parser.add_argument('--model_type', type=str, default="VariableBackbone", help="Name of model")
     parser.add_argument('--top_dir', type=str, default="layer_shapes", help="Directory with layer shapes")
@@ -214,4 +223,4 @@ if __name__ == "__main__":
     if args.model_type == 'ToyNet':
         convert_ToyNet(params, device, args.top_dir, params=params)
     elif args.model_type == 'VariableBackbone':
-        convert_VariableBackbone(params, device, args.top_dir, mode=params['mode'], params=params)
+        convert_VariableBackbone(params, device, args.top_dir, args.model_type, mode=params['mode'], params=params)

@@ -159,7 +159,7 @@ def convert_model(model, input_size, batch_size, model_name, save_dir, convert_f
     for i in range(0, len(layer_list)):
         problem = layer_list[i]
         layer_type = problem[0]
-        file_name = model_name + '_' + 'layer' + str(i+1) + '.yaml'
+        file_name = 'layer' + str(i+1) + '.yaml'
         # JR: update naming convention
         if params:
             param_name = get_param_name(model_name, params)
@@ -178,11 +178,12 @@ def convert_model(model, input_size, batch_size, model_name, save_dir, convert_f
 
 
 def get_param_name(model_name, params):
-    print(model_name)
     if 'ToyNet' in model_name:
-        name = '%s_%s' % (str(params['num_layers']), "-".join(str(x) for x in params['layer_shapes']))
+        name = '%slayers_%sshape' % (str(params['num_layers']), "-".join(str(x) for x in params['layer_shapes']))
     elif 'VariableBackbone' in model_name:
-        name = '%s_%s_%s' % ("-".join(str(x) for x in params['layer_shapes']), str(params['split_idx']), str(params['num_heads']))
+        name = '%sshape_%ssplit_%sheads_%s' % ("-".join(str(x) for x in params['layer_shapes']), str(params['split_idx']), str(params['num_heads']), params['mode'])
+    else:
+        name = None
     return name
 
     
