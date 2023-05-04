@@ -54,7 +54,58 @@ def score_network_performance(model:nn.Module,
   print(f"Percentage of samples classified correctly: {samples_correct/total_samples}")
   return mean_mse, mean_sigma, samples_correct/total_samples
 
+def get_mask_from_gaps(gaps, shape):
+  mask = np.ones(shape)
+  for gap in gaps:
+    xx, yy = np.meshgrid(list(range(gap[0], gap[1] + 1)), list(range(gap[2], gap[3] + 1)))
+    mask[xx, yy] = 0
+  return mask.flatten()
 
+def score_cnn_performance(model:nn.Module,
+                             test_loader,
+                             epi_threshold:float=0.1,
+                             device:str="cuda",
+                             )->plt.Axes:
+  model.eval()
+  testx, testy = np.meshgrid(np.arange(15), np.arange(15))
+  coords = []
+  all_inputs = []
+  for x, y in zip(testx.ravel(), testy.ravel()):
+    inputs = np.zeros((15, 15))
+    inputs[x, y] = 1
+    all_inputs.append(torch.tensor(inputs))
+    coords.append((x, y))
+  coords = np.array(coords)
+  inputs = torch.stack(all_inputs).unsqueeze(1).type(torch.float32).to(device)
+  outputs = model(inputs)
+  values = torch.stack(outputs).squeeze(-1)
+  means = values[:, :, 0].mean(dim=0)
+  sigma = torch.sqrt(
+    torch.mean(make_sigma_positive(values[:, :, 1]) + torch.square(values[:, :, 0]), dim=0) - torch.square(means))
+  epistemic_sigma = torch.std(values[:, :, 0], dim=0)
+  epistemic_sigma = epistemic_sigma.detach().cpu().numpy()
+  classified_data_region = epistemic_sigma < epi_threshold
+
+  mask = get_mask_from_gaps(test_loader.gaps, test_loader.shape).astype(bool)
+
+  x_input = (2 * testx.ravel()) / test_loader.shape[0] - 1
+  y_input = (2 * testy.ravel()) / test_loader.shape[0] - 1
+  gt_mean = test_loader.polyf(x_input, y_input)
+  gt_var = test_loader.varf(x_input, y_input)
+
+  samples_correct = np.sum(
+    np.logical_and(classified_data_region, mask)
+  ) + np.sum(np.logical_and(np.logical_not(classified_data_region), np.logical_not(mask)))
+  total_samples = len(testx) * len(testy)
+
+  means_arr = means.detach().cpu().numpy()
+  sigma_arr = sigma.detach().cpu().numpy()
+  mean_mse = np.mean(np.square(means_arr[mask] - gt_mean[mask]))
+  mean_sigma = np.mean(np.square(np.square(sigma_arr[mask]) - gt_var[mask]))
+  print(f"Mean MSE: {mean_mse}")
+  print(f"Mean Sigma: {mean_sigma}")
+  print(f"Percentage of samples classified correctly: {samples_correct / total_samples}")
+  return mean_mse, mean_sigma, samples_correct/total_samples
 
 if __name__ == "__main__":
   most_recent_model = get_most_recent_model()
