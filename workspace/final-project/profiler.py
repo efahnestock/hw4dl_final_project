@@ -141,7 +141,7 @@ def get_param_name(model_name, params):
     print(model_name)
     if 'ToyNet' in model_name:
         name = '%slayers_%sshape' % (str(params['num_layers']), "-".join(str(x) for x in params['layer_shapes']))
-    elif 'VariableBackbone' in model_name:
+    elif 'VariableBackbone' or 'VariableCNNBackbone' in model_name:
         name = '%sshape_%ssplit_%sheads_%s' % ("-".join(str(x) for x in params['layer_shapes']), str(params['split_idx']), str(params['num_heads']), params['mode'])
     else:
         name = None

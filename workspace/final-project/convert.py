@@ -116,14 +116,17 @@ def convert_VariableCNNBackbone(net_params, device, top_dir, model_name, mode=No
         raise ValueError("If only one head, don't use the mode argument.")
 
     # make network
-    net = VariableCNNBackbone(layer_shapes, split_idx, num_heads).to(device)
+    print(layer_shapes)
+    net = VariableCNNBackbone(layer_shapes, split_idx, num_heads, input_size=(10,10), task='pixel').to(device)
+    print(net)
 
     # pytorch2timeloop
-    sub_dir = 'VariableBackbone'
-    input_shape = (3, 224, 224)
+    sub_dir = 'VariableCNNBackbone'
+    input_shape = (1, 10, 10)
     batch_size = 1
     convert_fc = True
     exception_module_names = []
+
     pytorch2timeloop.convert_model(net, input_shape, batch_size, sub_dir, top_dir, convert_fc, exception_module_names, params)
 
     if mode == 'parallel':
@@ -201,7 +204,7 @@ def get_param_name(model_name, params):
     print(model_name)
     if 'ToyNet' in model_name:
         name = '%slayers_%sshape' % (str(params['num_layers']), "-".join(str(x) for x in params['layer_shapes']))
-    elif 'VariableBackbone' in model_name:
+    elif 'VariableBackbone' or 'VariableCNNBackbone' in model_name:
         name = '%sshape_%ssplit_%sheads_%s' % ("-".join(str(x) for x in params['layer_shapes']), str(params['split_idx']), str(params['num_heads']), params['mode'])
     else:
         name = None
@@ -223,6 +226,7 @@ if __name__ == "__main__":
     # results top directory
     args.top_dir = os.path.join(ROOT_DIR, "workspace/final-project/layer_shapes")
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print(device)
     with open(f"configs/{args.params}.yaml", 'r') as f:
         params = yaml.safe_load(f)
 
@@ -230,3 +234,5 @@ if __name__ == "__main__":
         convert_ToyNet(params, device, args.top_dir, params=params)
     elif args.model_type == 'VariableBackbone':
         convert_VariableBackbone(params, device, args.top_dir, args.model_type, mode=params['mode'], params=params)
+    elif args.model_type == 'VariableCNNBackbone':
+        convert_VariableCNNBackbone(params, device, args.top_dir, args.model_type, mode=params['mode'], params=params)
