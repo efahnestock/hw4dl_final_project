@@ -7,7 +7,7 @@ Level 0
     SPECS
     -----
     Word bits             : 16
-    Instances             : 336 (14*24)
+    Instances             : 672 (14*48)
     Compute energy        : 2.20 pJ
 
     STATS
@@ -16,7 +16,7 @@ Level 0
     Computes (total)        : 30
     Cycles                  : 1
     Energy (total)          : 66.01 pJ
-    Area (total)            : 416472.00 um^2
+    Area (total)            : 832944.00 um^2
 
 Level 1
 -------
@@ -29,7 +29,7 @@ Level 1
         Word bits                   : 16
         Block size                  : 1
         Cluster size                : 1
-        Instances                   : 336 (14*24)
+        Instances                   : 672 (14*48)
         Shared bandwidth            : -
         Read bandwidth              : 2.00
         Write bandwidth             : 2.00
@@ -83,7 +83,7 @@ Level 2
         Word bits                   : 16
         Block size                  : 1
         Cluster size                : 1
-        Instances                   : 336 (14*24)
+        Instances                   : 672 (14*48)
         Shared bandwidth            : -
         Read bandwidth              : 2.00
         Write bandwidth             : 2.00
@@ -137,7 +137,7 @@ Level 3
         Word bits                   : 16
         Block size                  : 1
         Cluster size                : 1
-        Instances                   : 336 (14*24)
+        Instances                   : 672 (14*48)
         Shared bandwidth            : -
         Read bandwidth              : 2.00
         Write bandwidth             : 2.00
@@ -818,7 +818,7 @@ Operational Intensity Stats
 Summary Stats
 -------------
 GFLOPs (@1GHz): 7.50
-Utilization: 0.02
+Utilization: 0.01
 Cycles: 4
 Energy: 0.01 uJ
 EDP(J*cycle): 4.10e-08

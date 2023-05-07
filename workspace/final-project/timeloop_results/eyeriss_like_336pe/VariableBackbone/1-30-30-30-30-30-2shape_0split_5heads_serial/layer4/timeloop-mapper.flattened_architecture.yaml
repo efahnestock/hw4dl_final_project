@@ -1,7 +1,7 @@
 architecture:
   version: 0.3
   local:
-  - name: system.eyeriss.PE[0..83].ifmap_spad
+  - name: system.eyeriss.PE[0..335].ifmap_spad
     class: smartbuffer_RF
     attributes:
       block-size: 1
@@ -15,7 +15,7 @@ architecture:
       technology: 45nm
       word-bits: 16
       write_bandwidth: 2
-  - name: system.eyeriss.PE[0..83].weights_spad
+  - name: system.eyeriss.PE[0..335].weights_spad
     class: smartbuffer_RF
     attributes:
       block-size: 1
@@ -29,7 +29,7 @@ architecture:
       technology: 45nm
       word-bits: 16
       write_bandwidth: 2
-  - name: system.eyeriss.PE[0..83].psum_spad
+  - name: system.eyeriss.PE[0..335].psum_spad
     class: smartbuffer_RF
     attributes:
       block-size: 1
@@ -44,7 +44,7 @@ architecture:
       update_fifo_depth: 2
       word-bits: 16
       write_bandwidth: 2
-  - name: system.eyeriss.PE[0..83].mac
+  - name: system.eyeriss.PE[0..335].mac
     class: intmac
     attributes:
       datawidth: 16

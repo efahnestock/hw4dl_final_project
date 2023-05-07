@@ -1,7 +1,7 @@
 ERT_summary:
   version: 0.3
   table_summary:
-  - name: system.eyeriss.PE[0..83].mac
+  - name: system.eyeriss.PE[0..671].mac
     actions:
     - name: mac_random
       energy: 2.20035
@@ -12,7 +12,7 @@ ERT_summary:
     - name: idle
       energy: 0.06595
     primitive_estimation(s):
-    - name: system.eyeriss.PE[0..83].mac
+    - name: system.eyeriss.PE[0..671].mac
       estimator: Aladdin_table
   - name: system.eyeriss.DummyBuffer[0..13]
     actions:
@@ -40,7 +40,7 @@ ERT_summary:
     primitive_estimation(s):
     - name: system.DRAM
       estimator: Cacti
-  - name: system.eyeriss.PE[0..83].ifmap_spad
+  - name: system.eyeriss.PE[0..671].ifmap_spad
     actions:
     - name: write
       average_energy: 0.14561
@@ -61,7 +61,7 @@ ERT_summary:
       estimator: Aladdin_table
     - name: address_generators[0..1]
       estimator: Aladdin_table
-  - name: system.eyeriss.PE[0..83].weights_spad
+  - name: system.eyeriss.PE[0..671].weights_spad
     actions:
     - name: write
       average_energy: 0.82303
@@ -82,7 +82,7 @@ ERT_summary:
       estimator: Aladdin_table
     - name: address_generators[0..1]
       estimator: Aladdin_table
-  - name: system.eyeriss.PE[0..83].psum_spad
+  - name: system.eyeriss.PE[0..671].psum_spad
     actions:
     - name: write
       average_energy: 0.1529

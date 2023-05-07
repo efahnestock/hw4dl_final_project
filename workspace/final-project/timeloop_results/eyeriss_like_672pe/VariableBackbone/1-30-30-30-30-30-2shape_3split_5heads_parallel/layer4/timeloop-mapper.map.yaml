@@ -45,8 +45,8 @@ mapping:
       []
   - target: psum_spad
     type: temporal
-    factors: C1 M1 R1 S1 N1 P1 Q1 H5
-    permutation: HCMRSNPQ
+    factors: C1 M3 R1 S1 N1 P1 Q1 H1
+    permutation: MCRSNPQH
   - target: weights_spad
     type: temporal
     factors: C1 M1 R1 S1 N1 P1 Q1 H1
@@ -57,8 +57,8 @@ mapping:
     permutation: CMRSNPQH
   - target: DummyBuffer
     type: spatial
-    factors: C6 M3 R1 S1 N1 P1 Q1 H1
-    permutation: CMRSNPQH
+    factors: C6 M1 R1 S1 N1 P1 Q1 H5
+    permutation: CHMRSNPQ
     split: 0
   - target: DummyBuffer
     type: temporal

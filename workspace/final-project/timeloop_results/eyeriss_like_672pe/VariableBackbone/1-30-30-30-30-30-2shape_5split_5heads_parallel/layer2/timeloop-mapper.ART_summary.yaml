@@ -1,7 +1,7 @@
 ART_summary:
   version: 0.3
   table_summary:
-  - name: system.eyeriss.PE[0..335].mac
+  - name: system.eyeriss.PE[0..671].mac
     area: 1239.5
     primitive_estimations: Aladdin_table
   - name: system.eyeriss.DummyBuffer[0..13]
@@ -10,21 +10,21 @@ ART_summary:
   - name: system.DRAM
     area: 0
     primitive_estimations: Cacti
-  - name: system.eyeriss.PE[0..335].ifmap_spad
+  - name: system.eyeriss.PE[0..671].ifmap_spad
     area: 379.68
     primitive_estimations:
     - name: storage
       estimator: Aladdin_table
     - name: address_generators[0..1]
       estimator: Aladdin_table
-  - name: system.eyeriss.PE[0..335].weights_spad
+  - name: system.eyeriss.PE[0..671].weights_spad
     area: 3634.68
     primitive_estimations:
     - name: storage
       estimator: Aladdin_table
     - name: address_generators[0..1]
       estimator: Aladdin_table
-  - name: system.eyeriss.PE[0..335].psum_spad
+  - name: system.eyeriss.PE[0..671].psum_spad
     area: 414.68
     primitive_estimations:
     - name: storage

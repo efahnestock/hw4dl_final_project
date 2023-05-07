@@ -130,7 +130,7 @@ def convert_VariableCNNBackbone(net_params, device, top_dir, model_name, mode=No
     pytorch2timeloop.convert_model(net, input_shape, batch_size, sub_dir, top_dir, convert_fc, exception_module_names, params)
 
     if mode == 'parallel':
-        workloads_per_head = (len([i for i in layer_shapes if i != -1]) - 1) - split_idx
+        workloads_per_head = len([i for i in layer_shapes if i != -1]) - split_idx
         param_dir = get_param_name(model_name, params)
         # get layer files and sort by layer number
         layer_dir = os.path.join(top_dir, sub_dir)

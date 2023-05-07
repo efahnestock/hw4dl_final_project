@@ -14,13 +14,13 @@
 							<level_name>mac</level_name>
 						</LevelSpecs>
 						<instances class_id="8" tracking_level="0" version="0">
-							<t_>84</t_>
+							<t_>672</t_>
 						</instances>
 						<meshX>
 							<t_>14</t_>
 						</meshX>
 						<meshY>
-							<t_>6</t_>
+							<t_>48</t_>
 						</meshY>
 						<word_bits>
 							<t_>16</t_>
@@ -77,13 +77,13 @@
 							<t_>1</t_>
 						</cluster_size>
 						<instances>
-							<t_>84</t_>
+							<t_>672</t_>
 						</instances>
 						<meshX>
 							<t_>14</t_>
 						</meshX>
 						<meshY>
-							<t_>6</t_>
+							<t_>48</t_>
 						</meshY>
 						<shared_bandwidth class_id="15" tracking_level="0" version="0"></shared_bandwidth>
 						<read_bandwidth>
@@ -523,13 +523,13 @@
 							<t_>1</t_>
 						</cluster_size>
 						<instances>
-							<t_>84</t_>
+							<t_>672</t_>
 						</instances>
 						<meshX>
 							<t_>14</t_>
 						</meshX>
 						<meshY>
-							<t_>6</t_>
+							<t_>48</t_>
 						</meshY>
 						<shared_bandwidth></shared_bandwidth>
 						<read_bandwidth>
@@ -969,13 +969,13 @@
 							<t_>1</t_>
 						</cluster_size>
 						<instances>
-							<t_>84</t_>
+							<t_>672</t_>
 						</instances>
 						<meshX>
 							<t_>14</t_>
 						</meshX>
 						<meshY>
-							<t_>6</t_>
+							<t_>48</t_>
 						</meshY>
 						<shared_bandwidth></shared_bandwidth>
 						<read_bandwidth>
@@ -2736,7 +2736,7 @@
 							<router_energy></router_energy>
 							<wire_energy></wire_energy>
 							<tile_width>
-								<t_>1.28140776996427053e+03</t_>
+								<t_>2.23049486529698424e+03</t_>
 							</tile_width>
 							<energy_per_hop></energy_per_hop>
 							<fill_latency>
@@ -3164,7 +3164,7 @@
 							<router_energy></router_energy>
 							<wire_energy></wire_energy>
 							<tile_width>
-								<t_>1.85059232395006177e+02</t_>
+								<t_>5.21848249981065692e+02</t_>
 							</tile_width>
 							<energy_per_hop></energy_per_hop>
 							<fill_latency>

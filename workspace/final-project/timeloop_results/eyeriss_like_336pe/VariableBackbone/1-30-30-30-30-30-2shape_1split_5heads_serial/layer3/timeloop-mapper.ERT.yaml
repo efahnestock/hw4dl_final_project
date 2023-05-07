@@ -1,7 +1,7 @@
 ERT:
   version: 0.3
   tables:
-  - name: system.eyeriss.PE[0..83].mac
+  - name: system.eyeriss.PE[0..335].mac
     actions:
     - name: mac_random
       arguments: null
@@ -71,7 +71,7 @@ ERT:
     - name: idle
       arguments: null
       energy: 0
-  - name: system.eyeriss.PE[0..83].ifmap_spad
+  - name: system.eyeriss.PE[0..335].ifmap_spad
     actions:
     - name: write
       arguments:
@@ -116,7 +116,7 @@ ERT:
     - name: idle
       arguments: null
       energy: 0.018
-  - name: system.eyeriss.PE[0..83].weights_spad
+  - name: system.eyeriss.PE[0..335].weights_spad
     actions:
     - name: write
       arguments:
@@ -161,7 +161,7 @@ ERT:
     - name: idle
       arguments: null
       energy: 0.02363
-  - name: system.eyeriss.PE[0..83].psum_spad
+  - name: system.eyeriss.PE[0..335].psum_spad
     actions:
     - name: write
       arguments:
