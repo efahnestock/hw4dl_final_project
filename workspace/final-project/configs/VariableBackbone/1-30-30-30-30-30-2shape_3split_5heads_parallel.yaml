@@ -1,0 +1,4 @@
+layer_shapes: [1, 30, 30, 30, 30, 30, 2]
+split_idx: 3
+num_heads: 5
+mode: parallel

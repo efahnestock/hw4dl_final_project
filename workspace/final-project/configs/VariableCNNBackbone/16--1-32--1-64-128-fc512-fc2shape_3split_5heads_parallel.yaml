@@ -1,0 +1,4 @@
+layer_shapes: [16, -1, 32, -1, 64, 128, 'fc512', 'fc2']
+split_idx: 3
+num_heads: 5
+mode: parallel
