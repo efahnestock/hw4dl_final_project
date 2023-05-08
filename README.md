@@ -1,31 +1,25 @@
-# Report Due Date: May 01, 2022, 11:59PM EST
+# BONE: Backbone Optimization for Neural Ensembles
 
 ## Setting up the python package
 Run this from the top level directory (with `setup.py` in it)
 ```pip install -e .```
 
-## Running Linear Experiments 
+## Training Linear Experiments 
 To run the fully connected experiments with the default parameters, run the following command from the top level directory:
 ```mkdir experiments && python hw4dl/tools/run_fc_experiment.py```
 
-# Final Project Baselines
+# Running hardware 
 For detailed instructions, please read [./workspace/final-project/README.md](./workspace/final-project/README.md). 
 
-## Using Docker
+## Convert PyTorch to Timeloop 
+
+## Run TimeLoop and Accelergy
 
 Please pull the docker first to update the container, and then start with `docker-compose up`. 
 ```
-cd <your-git-repo-for-final-project>
+git clone https://github.com/aknh9189/hw4dl_final_project.git
 docker-compose pull
 docker-compose up
 ```
-After finishing the project, please commit all changes and push back to this repository.
+Note that we use the [eyeriss-like design](https://people.csail.mit.edu/emer/papers/2017.01.jssc.eyeriss_design.pdf)
 
-##  Related reading
- - [Timeloop/Accelergy documentation](https://timeloop.csail.mit.edu/)
- - [Timeloop/Accelergy tutorial](http://accelergy.mit.edu/tutorial.html)
- - [SparseLoop tutorial](https://accelergy.mit.edu/sparse_tutorial.html)
- - [eyeriss-like design](https://people.csail.mit.edu/emer/papers/2017.01.jssc.eyeriss_design.pdf)
- - [simba-like architecture](https://people.eecs.berkeley.edu/~ysshao/assets/papers/shao2019-micro.pdf)
- - simple weight stationary architecture: you can refer to the related lecture notes
- - simple output stationary architecture: you can refer to the related lecture notes
