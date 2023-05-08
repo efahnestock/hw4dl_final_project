@@ -1,0 +1,13 @@
+[  5] STATEMENT: search algorithm is done, terminating search.
+[  0] Utilization = 0.71 | pJ/Compute =   55.787 | L5[WIO] Q1 - L4[IO] P10 Q10X - L3[] Q1 S3Y - L2[I] Q1 - L1[W] R3 - L0[O] Q1 
+[  3] Utilization = 0.14 | pJ/Compute =   55.661 | L5[WIO] Q5 - L4[IO] P10 Q2X - L3[] Q1 S3Y - L2[I] Q1 - L1[W] R3 - L0[O] Q1 
+[  4] STATEMENT: search algorithm is done, terminating search.
+[  2] Utilization = 0.36 | pJ/Compute =   55.708 | L5[WIO] Q2 - L4[IO] P10 Q5X - L3[] Q1 S3Y - L2[I] Q1 - L1[W] R3 - L0[O] Q1 
+[  1] Utilization = 0.07 | pJ/Compute =   55.645 | L5[WIO] Q10 - L4[IO] P10 - L3[] Q1 S3Y - L2[I] Q1 - L1[W] R3 - L0[O] Q1 
+[  7] STATEMENT: search algorithm is done, terminating search.
+[  6] STATEMENT: search algorithm is done, terminating search.
+Interrupt caught. Mapper threads will terminate after completing any ongoing evaluations.
+[  0] STATEMENT: global termination flag activated, terminating search.
+[  3] STATEMENT: global termination flag activated, terminating search.
+[  2] STATEMENT: global termination flag activated, terminating search.
+[  1] STATEMENT: global termination flag activated, terminating search.

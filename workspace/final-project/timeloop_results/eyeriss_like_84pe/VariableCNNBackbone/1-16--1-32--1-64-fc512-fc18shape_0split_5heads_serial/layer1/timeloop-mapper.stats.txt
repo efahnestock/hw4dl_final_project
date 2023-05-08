@@ -1,0 +1,14 @@
+Buffer and Arithmetic Levels
+----------------------------
+Level 0
+-------
+=== mac ===
+
+    SPECS
+    -----
+    Word bits             : 16
+    Instances             : 84 (14*6)
+    Compute energy        : 2.20 pJ
+
+    STATS
+    -----

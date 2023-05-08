@@ -1,0 +1,23 @@
+[  4] Utilization = 0.10 | pJ/Compute =   26.318 | L5[WIO] Q1 - L4[IO] P10 Q10X - L3[] Q1 M4Y S3Y - L2[I] Q1 - L1[W] R3 - L0[O] M4 
+[  6] Utilization = 0.10 | pJ/Compute =   26.853 | L5[WIO] M2 - L4[IO] P10 Q10X - L3[] Q1 M8Y S3Y - L2[I] Q1 - L1[W] R3 - L0[O] Q1 
+[  5] Utilization = 0.09 | pJ/Compute =   26.782 | L5[WIO] M2 - L4[IO] P10 Q10X - L3[] Q1 M2Y S3Y - L2[I] Q1 - L1[W] R3 - L0[O] M4 
+[  3] Utilization = 0.10 | pJ/Compute =   26.342 | L5[WIO] Q1 - L4[IO] P10 Q10X - L3[] Q1 M8Y S3Y - L2[I] Q1 - L1[W] R3 - L0[O] M2 
+[  7] Utilization = 0.10 | pJ/Compute =   26.805 | L5[WIO] M2 - L4[IO] P10 Q10X - L3[] Q1 M4Y S3Y - L2[I] Q1 - L1[W] R3 - L0[O] M2 
+[  0] Utilization = 0.04 | pJ/Compute =   26.301 | L5[WIO] Q1 - L4[IO] P10 Q10X - L3[] Q1 S3Y - L2[I] Q1 - L1[W] R3 - L0[O] M16 
+[  2] Utilization = 0.09 | pJ/Compute =   26.306 | L5[WIO] Q1 - L4[IO] P10 Q10X - L3[] Q1 M2Y S3Y - L2[I] Q1 - L1[W] R3 - L0[O] M8 
+[  5] Utilization = 0.10 | pJ/Compute =   26.263 | L5[WIO] Q2 - L4[IO] P10 M2X Q5X - L3[] Q1 M4Y S3Y - L2[I] Q1 - L1[W] R3 - L0[O] M2 
+[  1] Utilization = 0.10 | pJ/Compute =   26.389 | L5[WIO] Q1 - L4[IO] P10 Q10X - L3[] Q1 M16Y S3Y - L2[I] Q1 - L1[W] R3 - L0[O] Q1 
+[  3] Utilization = 0.10 | pJ/Compute =   26.262 | L5[WIO] Q5 - L4[IO] P10 Q2X - L3[] Q1 M16Y S3Y - L2[I] Q1 - L1[W] R3 - L0[O] Q1 
+[  0] Utilization = 0.09 | pJ/Compute =   26.239 | L5[WIO] Q2 - L4[IO] P10 Q5X - L3[] Q1 M4Y S3Y - L2[I] Q1 - L1[W] R3 - L0[O] M4 
+[  2] Utilization = 0.10 | pJ/Compute =   26.853 | L5[WIO] Q1 - L4[IO] M2 P10 Q10X - L3[] Q1 M8Y S3Y - L2[I] Q1 - L1[W] R3 - L0[O] Q1 
+[  7] Utilization = 0.10 | pJ/Compute =   26.263 | L5[WIO] Q2 - L4[IO] P10 Q5X - L3[] Q1 M8Y S3Y - L2[I] Q1 - L1[W] R3 - L0[O] M2 
+[  0] Utilization = 0.10 | pJ/Compute =   26.262 | L5[WIO] Q5 - L4[IO] P10 M4X Q2X - L3[] Q1 M4Y S3Y - L2[I] Q1 - L1[W] R3 - L0[O] Q1 
+[  2] Utilization = 0.10 | pJ/Compute =   26.262 | L5[WIO] Q5 - L4[IO] P10 M2X Q2X - L3[] Q1 M8Y S3Y - L2[I] Q1 - L1[W] R3 - L0[O] Q1 
+[  3] STATEMENT: 3000 suboptimal mappings found since the last upgrade, terminating search.
+[  1] STATEMENT: 3000 suboptimal mappings found since the last upgrade, terminating search.
+[  5] STATEMENT: 3000 suboptimal mappings found since the last upgrade, terminating search.
+[  4] STATEMENT: 3000 suboptimal mappings found since the last upgrade, terminating search.
+[  6] STATEMENT: 3000 suboptimal mappings found since the last upgrade, terminating search.
+[  2] STATEMENT: 3000 suboptimal mappings found since the last upgrade, terminating search.
+[  0] STATEMENT: 3000 suboptimal mappings found since the last upgrade, terminating search.
+[  7] STATEMENT: 3000 suboptimal mappings found since the last upgrade, terminating search.

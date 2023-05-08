@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-python3 -m profiler --params=VariableCNNBackbone/1-16--1-32--1-64-fc512-fc18shape_0split_5heads_parallel --model_type=VariableCNNBackbone --design=eyeriss_like_168pe
-python3 -m profiler --params=VariableCNNBackbone/1-16--1-32--1-64-fc512-fc18shape_1split_5heads_parallel --model_type=VariableCNNBackbone --design=eyeriss_like_168pe
-python3 -m profiler --params=VariableCNNBackbone/1-16--1-32--1-64-fc512-fc18shape_2split_5heads_parallel --model_type=VariableCNNBackbone --design=eyeriss_like_168pe
-python3 -m profiler --params=VariableCNNBackbone/1-16--1-32--1-64-fc512-fc18shape_3split_5heads_parallel --model_type=VariableCNNBackbone --design=eyeriss_like_168pe
-python3 -m profiler --params=VariableCNNBackbone/1-16--1-32--1-64-fc512-fc18shape_4split_5heads_parallel --model_type=VariableCNNBackbone --design=eyeriss_like_168pe
-python3 -m profiler --params=VariableCNNBackbone/1-16--1-32--1-64-fc512-fc18shape_5split_5heads_parallel --model_type=VariableCNNBackbone --design=eyeriss_like_168pe
+python3 -m profiler --params=VariableCNNBackbone/16--1-32--1-64-128-fc512-fc2shape_0split_5heads_parallel --model_type=VariableCNNBackbone --design=eyeriss_like_168pe
+python3 -m profiler --params=VariableCNNBackbone/16--1-32--1-64-128-fc512-fc2shape_1split_5heads_parallel --model_type=VariableCNNBackbone --design=eyeriss_like_168pe
+python3 -m profiler --params=VariableCNNBackbone/16--1-32--1-64-128-fc512-fc2shape_2split_5heads_parallel --model_type=VariableCNNBackbone --design=eyeriss_like_168pe
+python3 -m profiler --params=VariableCNNBackbone/16--1-32--1-64-128-fc512-fc2shape_3split_5heads_parallel --model_type=VariableCNNBackbone --design=eyeriss_like_168pe
+python3 -m profiler --params=VariableCNNBackbone/16--1-32--1-64-128-fc512-fc2shape_4split_5heads_parallel --model_type=VariableCNNBackbone --design=eyeriss_like_168pe
+python3 -m profiler --params=VariableCNNBackbone/16--1-32--1-64-128-fc512-fc2shape_5split_5heads_parallel --model_type=VariableCNNBackbone --design=eyeriss_like_168pe
 

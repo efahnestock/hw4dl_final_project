@@ -1,0 +1,26 @@
+Traceback (most recent call last):
+  File "/usr/local/bin/accelergy", line 5, in <module>
+    from accelergy.accelergy_console import main
+  File "/usr/local/lib/python3.8/dist-packages/accelergy/accelergy_console.py", line 34, in <module>
+    from accelergy.io import parse_commandline_args, generate_output_files
+  File "/usr/local/lib/python3.8/dist-packages/accelergy/io.py", line 25, in <module>
+    import pyfiglet
+  File "/usr/local/lib/python3.8/dist-packages/pyfiglet/__init__.py", line 11, in <module>
+    import pkg_resources
+  File "/usr/lib/python3/dist-packages/pkg_resources/__init__.py", line 36, in <module>
+    import email.parser
+  File "/usr/lib/python3.8/email/parser.py", line 12, in <module>
+    from email.feedparser import FeedParser, BytesFeedParser
+  File "/usr/lib/python3.8/email/feedparser.py", line 27, in <module>
+    from email._policybase import compat32
+  File "/usr/lib/python3.8/email/_policybase.py", line 9, in <module>
+    from email.utils import _has_surrogates
+  File "/usr/lib/python3.8/email/utils.py", line 29, in <module>
+    import socket
+  File "<frozen importlib._bootstrap>", line 991, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 975, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 671, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 844, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 976, in get_code
+  File "<frozen importlib._bootstrap_external>", line 640, in _compile_bytecode
+KeyboardInterrupt

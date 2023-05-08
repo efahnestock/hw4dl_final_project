@@ -1,0 +1,26 @@
+
+DRAM [ Weights:150 (150) Inputs:1 (1) Outputs:150 (150) ] 
+---------------------------------------------------------
+| for M in [0:3)
+
+shared_glb [ Inputs:1 (1) Outputs:50 (50) ] 
+-------------------------------------------
+|   for H in [0:1)
+|     for M in [0:10) (Spatial-X)
+
+DummyBuffer [ ] 
+---------------
+|       for H in [0:1)
+
+ifmap_spad [ Inputs:1 (1) ] 
+---------------------------
+|         for H in [0:1)
+
+weights_spad [ Weights:5 (5) ] 
+------------------------------
+|           for H in [0:5)
+
+psum_spad [ Outputs:1 (1) ] 
+---------------------------
+|             for H in [0:1)
+

@@ -1,0 +1,38 @@
+Traceback (most recent call last):
+  File "/usr/local/bin/accelergy", line 5, in <module>
+    from accelergy.accelergy_console import main
+  File "/usr/local/lib/python3.8/dist-packages/accelergy/accelergy_console.py", line 34, in <module>
+    from accelergy.io import parse_commandline_args, generate_output_files
+  File "/usr/local/lib/python3.8/dist-packages/accelergy/io.py", line 25, in <module>
+    import pyfiglet
+  File "/usr/local/lib/python3.8/dist-packages/pyfiglet/__init__.py", line 11, in <module>
+    import pkg_resources
+  File "/usr/lib/python3/dist-packages/pkg_resources/__init__.py", line 84, in <module>
+    __import__('pkg_resources.extern.packaging.requirements')
+  File "/usr/lib/python3/dist-packages/pkg_resources/_vendor/packaging/requirements.py", line 9, in <module>
+    from pkg_resources.extern.pyparsing import stringStart, stringEnd, originalTextFor, ParseException
+  File "<frozen importlib._bootstrap>", line 991, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 975, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 655, in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 618, in _load_backward_compatible
+  File "/usr/lib/python3/dist-packages/pkg_resources/extern/__init__.py", line 43, in load_module
+    __import__(extant)
+  File "/usr/lib/python3/dist-packages/pkg_resources/_vendor/pyparsing.py", line 5364, in <module>
+    anyOpenTag,anyCloseTag = makeHTMLTags(Word(alphas,alphanums+"_:").setName('any tag'))
+  File "/usr/lib/python3/dist-packages/pkg_resources/_vendor/pyparsing.py", line 2703, in __init__
+    self.re = re.compile( self.reString )
+  File "/usr/lib/python3.8/re.py", line 252, in compile
+    return _compile(pattern, flags)
+  File "/usr/lib/python3.8/re.py", line 304, in _compile
+    p = sre_compile.compile(pattern, flags)
+  File "/usr/lib/python3.8/sre_compile.py", line 764, in compile
+    p = sre_parse.parse(p, flags)
+  File "/usr/lib/python3.8/sre_parse.py", line 948, in parse
+    p = _parse_sub(source, state, flags & SRE_FLAG_VERBOSE, 0)
+  File "/usr/lib/python3.8/sre_parse.py", line 443, in _parse_sub
+    itemsappend(_parse(source, state, verbose, nested + 1,
+  File "/usr/lib/python3.8/sre_parse.py", line 605, in _parse
+    set = _uniq(set)
+  File "/usr/lib/python3.8/sre_parse.py", line 433, in _uniq
+    return list(dict.fromkeys(items))
+KeyboardInterrupt

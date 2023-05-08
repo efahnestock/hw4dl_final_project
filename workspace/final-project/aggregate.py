@@ -12,7 +12,7 @@ def aggregate(args, params):
     for design in os.listdir(os.path.join(args.base_dir, 'timeloop_results')):
         if args.design in design:
             designs.append(design)
-    total_energy, total_cycles, total_energy_per, total_ifmap_spad = {}, {}, {}, {}
+    total_energy, total_cycles, total_energy_per, total_ifmap_spad, total_en = {}, {}, {}, {}, {}
     for design in designs:
         pes = re.findall(r'\d+', design)[0]
         timeloop_dir = os.path.join('timeloop_results', design)
@@ -43,11 +43,12 @@ def aggregate(args, params):
                     if info['layer_dict'] == layer_dict:
                         layer_info[layer_id]['num'] += 1
 
-        total_energy_design, total_cycles_design, total_energy_per_design, total_ifmap_spad_design = 0, 0, 0, 0
+        total_energy_design, total_cycles_design, total_energy_per_design, total_ifmap_spad_design, total_en_design = 0, 0, 0, 0, 0
         for layer_id in layer_info.keys():
             with open(os.path.join(args.base_dir, timeloop_dir, sub_dir, param_dir, f'layer{layer_id}', f'timeloop-mapper.stats.txt'), 'r') as fid:
-                # Read last 50 lines
-                lines = fid.read().split('\n')[-30:]
+                # Read last 30 lines
+                whole_file = fid.read()
+                lines = whole_file.split('\n')[-30:]
                 for line in lines:
                     if line.startswith('Energy'):
                         energy = line.split(': ')[1].split(' ')[0]
@@ -72,15 +73,24 @@ def aggregate(args, params):
                         ut = line.split(': ')[1]
                         layer_info[layer_id]['utilization'] = eval(ut)
 
+                en = whole_file.split('\n')[160:175]
+                for line in en:
+                    if line.startswith('        Energy (total)'):
+                        energy_en = line.split(': ')[1].split(' ')[0]
+                        total_en_design += eval(energy_en)*layer_info[layer_id]['num']
+
         print('%f uJ Energy' % total_energy_design)
         print('%f pJ Energy Per' % total_energy_per_design)
         print('%d Cycles' % total_cycles_design)
         print("%f IFMAP" % total_ifmap_spad_design)
+        print('%f Energy En' % total_en_design)
         total_energy[pes] = total_energy_design
         total_cycles[pes] = total_cycles_design
         total_energy_per[pes] = total_energy_per_design
         total_ifmap_spad[pes] = total_ifmap_spad_design
-    return total_energy, total_cycles, total_energy_per, total_ifmap_spad
+        total_en[pes] = total_en_design
+
+    return total_energy, total_cycles, total_energy_per, total_ifmap_spad, total_en
 
 
 def plot(args, config_dir, performance_csv):
@@ -94,6 +104,7 @@ def plot(args, config_dir, performance_csv):
         'process': [],
         'energy per': [],
         'ifmap spad': [],
+        'energy en': [],
         'pes': []
     }
     for config in os.listdir(config_dir):
@@ -105,17 +116,18 @@ def plot(args, config_dir, performance_csv):
             continue
         with open(f"{config_dir}/{config}", 'r') as f:
             config_file = yaml.safe_load(f)
-        total_energy, total_cycles, total_energy_per, total_ifmap_spad = aggregate(args, config_file)
+        total_energy, total_cycles, total_energy_per, total_ifmap_spad, total_en = aggregate(args, config_file)
         for key in total_energy.keys():
-            print(perform_results)
+            #print(perform_results)
             results['backbone size'].append(config_file['split_idx'])
             results['energy'].append(total_energy[key])
             results['cycles'].append(total_cycles[key])
-            results['performance'].append(perform_results.at[config_file['split_idx']-1, 'epi_score'])
+            results['performance'].append(perform_results.at[config_file['split_idx'], 'epi_score'])
             results['process'].append(process)
             results['energy per'].append(total_energy_per[key])
             results['ifmap spad'].append(total_ifmap_spad[key])
             results['pes'].append(key)
+            results['energy en'].append(total_en[key])
 
     # Plot
     df = pd.DataFrame.from_dict(results)
@@ -123,17 +135,19 @@ def plot(args, config_dir, performance_csv):
     print(df)
     # Energy vs. backbone size
     energy_backbone = sns.lmplot(
-        data=df[df['pes']==168], x='backbone size', y='energy', hue='process'
+        data=df[df['pes']==168], x='backbone size', y='energy', hue='process', order=3, hue_order=['Serial', 'Parallel']
     )
     plt.xlabel('Backbone size (number of layers)')
     plt.ylabel('Energy (uJ)')
+    plt.ylim(0, 3000)
     if 'VariableCNNBackbone' in config_dir:
         plt.title('Variable CNN Backbone Size vs. Energy, 168 PEs')
     elif 'VariableBackbone' in config_dir:
         plt.title('FC Backbone Size vs. Energy, 168 PEs')
     energy_backbone.fig.savefig('energy_backbone.png', bbox_inches="tight")
     # Energy vs. performance
-    energy_performance = sns.lmplot(
+    plt.clf()
+    energy_performance = sns.scatterplot(
         data=df[df['pes']==168], x='energy', y='performance', hue='process'
     )
     plt.xlabel('Energy (uJ)')
@@ -142,13 +156,16 @@ def plot(args, config_dir, performance_csv):
         plt.title('Variable CNN Energy vs. Performance, 168 PEs')
     elif 'VariableBackbone' in config_dir:
         plt.title('FC Energy vs. Performance, 168 PEs')
-    energy_performance.fig.savefig('energy_performance.png', bbox_inches="tight")
+    plt.ylim(-55, -35)
+    plt.savefig('energy_performance.png', bbox_inches="tight")
+    plt.clf()
     # Cycles vs. backbone size
     cycles_backbone = sns.lmplot(
-        data=df[df['pes']==168], x='backbone size', y='cycles', hue='process'
+        data=df[df['pes']==168], x='backbone size', y='cycles', hue='process', order=3, hue_order=['Serial', 'Parallel']
     )
     plt.xlabel('Backbone size (number of layers)')
     plt.ylabel('Cycles')
+    plt.ylim(0, 300000)
     if 'VariableCNNBackbone' in config_dir:
         plt.title('Variable CNN Backbone Size vs. Cycles, 168 PEs')
     elif 'VariableBackbone' in config_dir:
@@ -176,14 +193,13 @@ def plot(args, config_dir, performance_csv):
     elif 'VariableBackbone' in config_dir:
         plt.title('FC Backbone Size vs. Performance, 168 PEs')
     performance_backbone.fig.savefig('performance_backbone.png', bbox_inches="tight")
-    """
     # Backbone size vs. # PEs vs. energy (heatmap) serial
     plt.clf()
     df_serial = df[df['process'] == 'Serial']
     print(df_serial)
     backbone_pes_energy = sns.heatmap(
         data=df_serial.pivot(index='pes', columns='backbone size', values='energy'),
-        annot=True, fmt='.3f'
+        annot=True, fmt='.1f'
     )
     plt.xlabel('Backbone size (number of layers)')
     plt.ylabel('Number of PEs')
@@ -197,8 +213,23 @@ def plot(args, config_dir, performance_csv):
     df_serial = df[df['process'] == 'Serial']
     print(df_serial)
     backbone_pes_energy = sns.heatmap(
+        data=df_serial.pivot(index='pes', columns='backbone size', values='energy en'),
+        annot=True, fmt='.1f'
+    )
+    plt.xlabel('Backbone size (number of layers)')
+    plt.ylabel('Number of PEs')
+    if 'VariableCNNBackbone' in config_dir:
+        plt.title('Serial Variable CNN Backbone Size vs. Number of PEs vs. Energy')
+    elif 'VariableBackbone' in config_dir:
+        plt.title('Serial FC Backbone Size vs. Number of PEs vs. Energy')
+    plt.savefig('backbone_pes_energy_en_serial.png', bbox_inches="tight")
+    # Backbone size vs. # PEs vs. energy (heatmap) serial
+    plt.clf()
+    df_serial = df[df['process'] == 'Serial']
+    print(df_serial)
+    backbone_pes_energy = sns.heatmap(
         data=df_serial.pivot(index='pes', columns='backbone size', values='energy per'),
-        annot=True, fmt='.3f', annot_kws={'size': 7}
+        annot=True, fmt='.1f', annot_kws={'size': 7}
     )
     plt.xlabel('Backbone size (number of layers)')
     plt.ylabel('Number of PEs')
@@ -213,7 +244,7 @@ def plot(args, config_dir, performance_csv):
     print(df_serial)
     backbone_pes_energy = sns.heatmap(
         data=df_serial.pivot(index='pes', columns='backbone size', values='ifmap spad'),
-        annot=True, fmt='.3f', annot_kws={'size': 7}
+        annot=True, fmt='.1f', annot_kws={'size': 7}
     )
     plt.xlabel('Backbone size (number of layers)')
     plt.ylabel('Number of PEs')
@@ -228,7 +259,7 @@ def plot(args, config_dir, performance_csv):
     print(df_parallel)
     backbone_pes_energy = sns.heatmap(
         data=df_parallel.pivot(index='pes', columns='backbone size', values='energy'),
-        annot=True, fmt='.3f'
+        annot=True, fmt='.1f'
     )
     plt.xlabel('Backbone size (number of layers)')
     plt.ylabel('Number of PEs')
@@ -243,7 +274,7 @@ def plot(args, config_dir, performance_csv):
     print(df_parallel)
     backbone_pes_energy = sns.heatmap(
         data=df_parallel.pivot(index='pes', columns='backbone size', values='energy per'),
-        annot=True, fmt='.3f', annot_kws={'size': 7}
+        annot=True, fmt='.1f', annot_kws={'size': 7}
     )
     plt.xlabel('Backbone size (number of layers)')
     plt.ylabel('Number of PEs')
@@ -258,7 +289,7 @@ def plot(args, config_dir, performance_csv):
     print(df_parallel)
     backbone_pes_energy = sns.heatmap(
         data=df_parallel.pivot(index='pes', columns='backbone size', values='ifmap spad'),
-        annot=True, fmt='.3f', annot_kws={'size': 7}
+        annot=True, fmt='.1f', annot_kws={'size': 7}
     )
     plt.xlabel('Backbone size (number of layers)')
     plt.ylabel('Number of PEs')
@@ -295,7 +326,6 @@ def plot(args, config_dir, performance_csv):
     elif 'VariableBackbone' in config_dir:
         plt.title('Parallel FC Backbone Size vs. Number of PEs vs. Number of Cycles')
     plt.savefig('backbone_pes_cycles_parallel.png', bbox_inches="tight")
-    """
     return results
 
 
