@@ -88,7 +88,7 @@ def train(args, device, save_path=None):
     criterion = nll_loss
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
 
-    val_loss = eval(model, args.model_type, args.scramble_batches, val_loader, criterion, device)
+    val_loss = eval(model, val_loader, criterion, device)
     print("Initial val loss, ", val_loss)
     # Training loop
     for i in range(args.n_epochs):
@@ -108,10 +108,10 @@ def train(args, device, save_path=None):
             total_train_loss += batch_loss.item()
 
         train_loss = total_train_loss / len(train_loader)
-        val_loss = eval(model, args.model_type, args.scramble_batches, val_loader, criterion, device)
+        val_loss = eval(model, val_loader, criterion, device)
         print(f"Epoch {i}, train loss: {train_loss}, val loss: {val_loss}")
 
-    test_loss = eval(model, args.model_type, args.scramble_batches, test_loader, criterion, device)
+    test_loss = eval(model, test_loader, criterion, device)
     print(f"Test loss: {test_loss}")
 
     print(f"Saving model and config")
