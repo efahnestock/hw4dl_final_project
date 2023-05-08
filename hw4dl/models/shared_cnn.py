@@ -1,16 +1,23 @@
 import torch
 import torch.nn as nn
 import pdb
-
+import numpy as np
 class VariableCNNBackbone(nn.Module):
     def __init__(self, layer_shapes: tuple, split_idx: int, num_heads: int, kernel_size: int=3, pool_size=2, input_size=(50,50),
                  task="patch"):
         """
         Create a NN with variable amount of shared backbone
 
-        @param layer_shapes: tuple of layer shapes eg. (input, hidden1, hidden2, output)
-        @param split_idx: index of layer to split the backbone. Eg 2 would split after hidden2
+        @param layer_shapes: tuple of layer output shapes. The input is assumed to have one channel.
+         -1 denotes a Maxpool layer and 'fcx' denotes a FC layer with output size x.
+         eg. (32, -1, 16, fc12) makes a network with a convolutional layer with 32 output channels, a max pool layer, a
+         conv layer with 16 out channels, and a linear layer with 12 outputs.
+        @param split_idx: index of layer to split the backbone. Eg in the above example 2 would split after the
+         max pool layer.
         @param num_heads: number of heads to create
+        @param kernel_size: kernel dimension for convolutional layers
+        @param pool_size: kernel dimension for MaxPool layers
+        @input_size
 
         """
         super().__init__()
@@ -108,12 +115,15 @@ class VariableCNNBackbone(nn.Module):
 
 
 if __name__ == "__main__":
-    layer_shapes = (16, -1, 32, -1, 64, 'fc512', 'fc18')
-    num_heads = 3
-    for split_idx in range(5):
-        x = torch.randn(2, 1, 10, 10)
-        model = VariableCNNBackbone(layer_shapes, split_idx, num_heads, input_size=(10,10), task="pixel")
-        print(model)
+    layer_shapes = (16, -1, 32, -1, 64, 128, 'fc512', 'fc18')
+    num_heads = 5
+    for split_idx in range(6):
+        print(split_idx)
+        x = torch.randn(2, 1, 15, 15)
+        model = VariableCNNBackbone(layer_shapes, split_idx, num_heads, input_size=(15,15), task="pixel")
         output = model(x)
-        #print(len(output))
-        #print(output[0].shape, output[1].shape, output[2].shape)
+        shared_parameters = np.sum([np.prod(p.shape) for p in model.shared_backbone.parameters()])
+        print("Shared ", shared_parameters)
+        split_parameters = np.sum([np.prod(p.shape) for p in model.heads.parameters()])
+        print("Split ", split_parameters)
+        print("Total ", shared_parameters + split_parameters)

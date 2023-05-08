@@ -11,7 +11,8 @@ import datetime, json
 import pdb
 from hw4dl.tools.manage_models import save_model
 from torch.distributions.normal import Normal
-TOY_LAYER_SHAPES = [1, 10, 40, 10, 2]
+layer_width = 30
+TOY_LAYER_SHAPES = [1] + [layer_width] * 5 + [2]
 
 def make_polyf(typex):
     """
@@ -24,7 +25,7 @@ def make_polyf(typex):
         def varf(x):
             return (1-x)**2 * np.log(1+np.exp(x))
 
-        gaps = [(-0.7, 0.4)]
+        gaps = [(-0.5, 0.5)]
         # gaps = [(-1.0, -0.4), (0.5, 0.7), (0.1, 0.3)]
         return polyf, varf, gaps
     else:
@@ -42,6 +43,7 @@ def nll_loss(outputs, labels):
   cond_dist_x = Normal(loc=mu, scale=sigma)
   loss = -cond_dist_x.log_prob(labels)
 
+  # return nn.MSELoss()(mu, labels)
   return loss.mean()
 
 # def reduce_ensemble_loss(losses):
@@ -59,15 +61,15 @@ def eval(model, model_type, scramble_batches, loader, criterion, device):
         if model_type == "shared":
             for head_i, output in enumerate(outputs):
                 if scramble_batches:
-                  batch_loss += criterion(output, labels[:,:,head_i])
+                  batch_loss += criterion(output, labels[:,:,head_i]) * output.shape[0]
                 else:
-                  batch_loss += criterion(output, labels)
+                  batch_loss += criterion(output, labels) * output.shape[0]
         else:
             batch_loss = criterion(outputs, labels)
         total_loss += batch_loss.item()
     return total_loss / len(loader)
 
-def train(args, device):
+def train(args, device, save_path=None):
     polyf, varf, gaps = make_polyf(args.polyf_type)
     train_dataset = PolyData(polyf, varf, gaps, size=args.train_size, seed=1111, scramble=args.scramble_batches, num_heads=args.num_heads)
     val_dataset = PolyData(polyf, varf, gaps, size=args.val_size, seed=2222, scramble=args.scramble_batches, num_heads=args.num_heads)
@@ -116,7 +118,7 @@ def train(args, device):
     print(f"Test loss: {test_loss}")
 
     print(f"Saving model and config")
-    save_model(model, dict(test_loss=test_loss), args)
+    save_model(model, dict(test_loss=test_loss), args, save_dir=save_path)
 
     print("Done :)")
 
