@@ -4,6 +4,10 @@
 Run this from the top level directory (with `setup.py` in it)
 ```pip install -e .```
 
+## Running Linear Experiments 
+To run the fully connected experiments with the default parameters, run the following command from the top level directory:
+```mkdir experiments && python hw4dl/tools/run_fc_experiment.py```
+
 # Final Project Baselines
 For detailed instructions, please read [./workspace/final-project/README.md](./workspace/final-project/README.md). 
 
