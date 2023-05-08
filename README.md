@@ -4,7 +4,7 @@
 Run this from the top level directory (with `setup.py` in it)
 ```pip install -e .```
 
-## Training Linear Experiments 
+## Training linear experiments 
 To run the fully connected experiments with the default parameters, run the following command from the top level directory:
 ```mkdir experiments && python hw4dl/tools/run_fc_experiment.py```
 
