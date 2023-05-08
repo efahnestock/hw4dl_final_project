@@ -32,7 +32,7 @@ def score_network_performance(model:nn.Module,
   outputs = model(torch_input)
   values = torch.stack(outputs).squeeze(-1)
   means = values[:,:,0].mean(dim=0)
-  sigma = torch.sqrt(torch.mean(make_sigma_positive(values[:,:,1]) + torch.square(values[:,:,0]), dim=0) - torch.square(means))
+  sigma = make_sigma_positive(values[:,:,1]).mean(dim=0)
   epistemic_sigma = torch.std(values[:,:,0], dim=0)
   epistemic_sigma = epistemic_sigma.detach().cpu().numpy()
 

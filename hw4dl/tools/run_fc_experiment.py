@@ -65,7 +65,7 @@ def run_experiment(exp_config:ExpConfig):
     # print out performance 
 
     # create plot
-    fig, ax = plot_network_performance(model, train_dataset)
+    fig, ax, samples, epi_sigma = plot_network_performance(model, train_dataset)
     fig.savefig(os.path.join(base_exp_path, f"{split_idx:03d}_performance.png"))
 
     # save results
