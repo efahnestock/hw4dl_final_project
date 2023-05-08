@@ -6,12 +6,13 @@ from hw4dl.tools.manage_models import load_model, get_most_recent_model
 from hw4dl.train import make_polyf, make_sigma_positive
 from torch.utils.data import DataLoader
 import torch
+import os
 
 def plot_network_performance(model:nn.Module,
                              toy_loader:PolyData,
                              device:str="cpu",
                              )->plt.Axes:
-    
+
   fig, ax = plt.subplots()
   ax.set_xlabel("X Values")
   ax.set_ylabel("Y Values")
@@ -43,6 +44,66 @@ def plot_network_performance(model:nn.Module,
   ax.fill_between(samples, means - epistemic_sigma, means + epistemic_sigma, alpha=0.5, label="Epistemic Std")
   ax.legend()
   return fig, ax, samples, epistemic_sigma
+
+def plot_cnn_performance(model, test_loader, savedir,device, split_id):
+  from matplotlib.patches import Rectangle
+
+  testx, testy = np.meshgrid(np.arange(15), np.arange(15))
+  x_input = (2 * testx.ravel()) / test_loader.shape[0] - 1
+  y_input = (2 * testy.ravel()) / test_loader.shape[0] - 1
+  gt_mean = test_loader.polyf(x_input, y_input)
+  gt_var = test_loader.varf(x_input, y_input)
+
+  # fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(5,5))
+  # fig.tight_layout()
+  plt.figure(figsize=(9, 6))
+  ax1 = plt.subplot(231)
+  ax2 = plt.subplot(233)
+  ax3 = plt.subplot(234)
+  ax4 = plt.subplot(235)
+  ax5 = plt.subplot(236)
+  # plt.tight_layout()
+  plt.subplots_adjust(hspace=0.3, wspace=0.3)
+
+  axes = [ax1, ax2, ax3, ax4, ax5]
+  # axes = axes.flatten()
+  axes[0].imshow(gt_mean.reshape((15, 15)))
+  axes[0].set_title("True function")
+  axes[1].imshow(gt_var.reshape((15, 15)))
+  axes[1].set_title("True variance")
+
+  all_inputs = []
+  for x, y in zip(testx.ravel(), testy.ravel()):
+    inputs = np.zeros((15, 15))
+    inputs[x, y] = 1
+    all_inputs.append(torch.tensor(inputs))
+  inputs = torch.stack(all_inputs).unsqueeze(1).type(torch.float32).to(device)
+  outputs = model(inputs)
+  values = torch.stack(outputs).squeeze(-1)
+  means = values[:, :, 0].mean(dim=0)
+  means_arr = means.detach().cpu().numpy()
+  axes[2].imshow(means_arr.reshape((15, 15)))
+  axes[2].set_title("Predicted function")
+
+  sigma = torch.sqrt(
+    torch.mean(make_sigma_positive(values[:, :, 1]) + torch.square(values[:, :, 0]), dim=0) - torch.square(means))
+  sigma = sigma.detach().cpu().numpy()
+  epistemic_sigma = torch.std(values[:, :, 0], dim=0)
+  epistemic_sigma = epistemic_sigma.detach().cpu().numpy()
+
+  axes[3].imshow(np.square(sigma).reshape((15, 15)))
+  axes[3].set_title("Predicted variance")
+
+  axes[4].imshow(np.square(epistemic_sigma).reshape((15, 15)))
+  axes[4].set_title("Epistemic variance")
+  for gap in test_loader.gaps:
+    for i in range(4):
+      width = gap[1] - gap[0]
+      height = gap[3] - gap[2]
+      x1, y1 = gap[0], gap[2]
+      rect = Rectangle((x1, y1), width, height, linewidth=2, edgecolor='red', facecolor='none')
+      axes[i].add_patch(rect)
+  plt.savefig(os.path.join(savedir, f"result_plot_split_{split_id}.png"))
 
 if __name__ == "__main__":
 
