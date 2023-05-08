@@ -11,37 +11,51 @@ import os
 def plot_network_performance(model:nn.Module,
                              toy_loader:PolyData,
                              device:str="cpu",
-                             )->plt.Axes:
+                             )->tuple[plt.Figure, plt.Axes, np.ndarray, np.ndarray]:
+  """
+  Plot ensemble performance on a toy dataset
+  :param model: The model to plot
+  :param toy_loader: The toy dataset
+  :param device: The device to run the model on
+  :return: A tuple of the figure, axes, x values, and epistemic variance
+  """
 
+
+  # set up the main plots 
   fig, ax = plt.subplots()
+  ax.set_xlabel("X Values")
+  ax.set_ylabel("Y Values")
   ax.set_xlim(toy_loader.lower, toy_loader.upper)
+  # get samples we are evaluating at
   samples = np.linspace(toy_loader.lower, toy_loader.upper, 1000)
+  # gt variance, plot true values
   var = toy_loader.varf(samples)
   ax.scatter(toy_loader.x, toy_loader.y, marker='.', alpha=0.1, label="Training Data")
-  print(toy_loader.x)
   ax.plot(samples, toy_loader.polyf(samples), label="True Function")
   ax.fill_between(samples, toy_loader.polyf(samples) - var, toy_loader.polyf(samples) + var, alpha=0.5, label="True Variance")
-
+  # get network predictions
   torch_input = torch.unsqueeze(torch.tensor(samples, dtype=torch.float32), 1).to(device)
   model.to(device)
   model.eval()
   model.scramble_batches = False
   outputs = model(torch_input)
   values = torch.stack(outputs).squeeze(-1)
+  # plot network predictions
   for i in range(values.shape[0]):
     ax.plot(samples, values[i,:,0].detach().cpu().numpy(), alpha=0.5, label="_Network Prediction")
+  # reduce to mean and variance
   means = values[:,:,0].mean(dim=0)
-  sigma = torch.sqrt(torch.mean(make_sigma_positive(values[:,:,1]) + torch.square(values[:,:,0]), dim=0) - torch.square(means))
+  sigma = make_sigma_positive(values[:,:,1]).mean(dim=0)
   epistemic_sigma = torch.std(values[:,:,0], dim=0)
   means = means.detach().cpu().numpy()
   sigma = sigma.detach().cpu().numpy()
   epistemic_sigma = epistemic_sigma.detach().cpu().numpy()
-  print(epistemic_sigma)
+  # plot mean and variance and predicted epistemic variance
   ax.plot(samples, means, label="Mean Prediction")
   ax.fill_between(samples, means - np.square(sigma), means + np.square(sigma), alpha=0.5, label="Predicted Variance")
-  ax.fill_between(samples, means - epistemic_sigma, means + epistemic_sigma, alpha=0.5, label="Epistemic Sigma")
+  ax.fill_between(samples, means - epistemic_sigma, means + epistemic_sigma, alpha=0.5, label="Epistemic Std")
   ax.legend()
-  return fig, ax
+  return fig, ax, samples, epistemic_sigma
 
 def plot_cnn_performance(model, test_loader, savedir,device, split_id):
   """

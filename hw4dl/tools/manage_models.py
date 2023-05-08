@@ -18,6 +18,11 @@ def save_model(model:nn.Module, extra_metrics:dict, args, save_dir:str=None):
     f.write(json.dumps(save_metrics, sort_keys=True, indent=2, separators=(',', ': ')))
     
 def load_model(base_filepath:str):
+  """
+  Load a model and its config from a base filepath
+  :param base_filepath: The base filepath of the model
+  :return: The model and the config
+  """
   json_path = base_filepath + ".json"
   pt_path = base_filepath + ".pt"
   with open(json_path, "r") as f:
@@ -29,6 +34,7 @@ def load_model(base_filepath:str):
 def get_most_recent_model():
   """
   Get the most recent base path of a saved model
+  :return: The most recent base path of a saved model
   """
   files = os.listdir(os.path.join(ROOT_DIR, "weights"))
   files = [f for f in files if f.endswith(".json")]
