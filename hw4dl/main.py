@@ -15,7 +15,7 @@ def parse_options():
     parser.add_argument('--num_heads', type=int, default=5, help="number of prediction heads for a separated network")
     parser.add_argument('--scramble_batches', type=bool, default=False, help="scramble batches for a separated network")
     parser.add_argument('--lr', type=float, default=1e-3, help="learning rate")
-    parser.add_argument('--n_epochs', type=int, default=500, help="number of epochs")
+    parser.add_argument('--n_epochs', type=int, default=15, help="number of epochs")
     return parser.parse_args()
 
 

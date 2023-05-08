@@ -78,7 +78,7 @@ if __name__ == "__main__":
   parser.add_argument("--name", type=str, default="fc_experiment")
   parser.add_argument("--split_indexes", type=int, nargs="+", default=[0, 1, 2, 3, 4, 5])
   parser.add_argument("--seed", type=int, default=1111)
-  parser.add_argument("--device_type", type=str, default="cpu")
+  parser.add_argument("--device_type", type=str, default="cuda")
   args = parser.parse_args()
   exp_config = ExpConfig(name=args.name, split_indexes=args.split_indexes, seed=args.seed, device=args.device_type)
   run_experiment(exp_config)

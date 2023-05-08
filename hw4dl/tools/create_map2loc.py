@@ -32,6 +32,14 @@ def create_map2loc(polyf, varf, dir, gaps=[], x_bounds=(-1, 1), y_bounds=(-1, 1)
         number of images to generate
     seed : int
         random seed for RNG
+    shape : Tuple
+        tuple to establish the shape of each image in the datase.
+    patch_size : int
+        If task=="patch" denotes the size of the patch in each image
+    task: str
+        Denotes the problem setting for the dataset. Takes either "pixel" or "patch". "pixel" generates images that are
+        (shape, shape) zero-filled arrays, in which one pixel is filled as a one. "patch" generates images that are (shape, shape) zero-filled
+        arrays in which a (patch_size, patch_size) patch is filled with ones.
     """
 
     # make sure gaps are in the bounds of the function

@@ -3,8 +3,6 @@ import os, torch
 import numpy as np
 import datetime
 import sys
-sys.path.append("/data/vision/phillipi/perception/hw4dl_final_project")
-sys.path.append("/data/vision/phillipi/perception/hw4dl_final_project/hw4dl")
 from hw4dl import ROOT_DIR
 from hw4dl.main import parse_options
 from hw4dl.train_cnn import train
@@ -29,7 +27,12 @@ def set_all_seeds(seed):
     torch.cuda.manual_seed_all(seed)
   np.random.seed(seed)
 
-def run_experiment(exp_config:ExpConfig, args):
+def run_experiment(exp_config:ExpConfig):
+  """
+  Runs a full CNN experiment with the given parameters
+  :param exp_config: An ExpConfig object with experiment parameters, as defined in the __main__ function below.
+  :return:
+  """
   exp_name = exp_config.name + "_" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
   base_exp_path = os.path.join(ROOT_DIR, "experiments", exp_name)
   print(base_exp_path)
@@ -50,9 +53,9 @@ def run_experiment(exp_config:ExpConfig, args):
     batch_size=16,
     model_type='single',
     split_idx=split_idx,
-    num_heads=3,
+    num_heads=5,
     lr=1e-3,
-    n_epochs=1,
+    n_epochs=15,
     task=exp_config.task,
     scramble_batches=False,
     )
@@ -71,7 +74,7 @@ def run_experiment(exp_config:ExpConfig, args):
 
     # evaluate network performance
     test_dataset = Map2Loc(root_dir=f'/data/vision/phillipi/perception/hw4dl_final_project/hw4dl/datasets/map2loc_{args.task}_test', csv_file='description.csv')
-    mean_mse, sigma_mse, per_correct, epi_score = score_cnn_performance(model, test_dataset, 0.01, split_idx)
+    mean_mse, sigma_mse, per_correct, epi_score = score_cnn_performance(model, test_dataset, 0.01, args.device_type)
     results["split_idx"].append(split_idx)
     results["mean_mse"].append(mean_mse)
     results["sigma_mse"].append(sigma_mse)
@@ -88,7 +91,6 @@ def run_experiment(exp_config:ExpConfig, args):
     results_df.to_csv(os.path.join(base_exp_path, "results.csv"), index=False)
 
 if __name__ == "__main__":
-  print("here")
   import argparse
   parser = argparse.ArgumentParser()
   parser.add_argument("--name", type=str, default="fc_experiment")
@@ -99,3 +101,7 @@ if __name__ == "__main__":
   args = parser.parse_args()
   exp_config = ExpConfig(name=args.name, split_indexes=args.split_indexes, seed=args.seed, task=args.task,device=args.device_type)
   run_experiment(exp_config, exp_config)
+
+  """
+  
+  """

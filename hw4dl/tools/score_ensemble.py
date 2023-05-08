@@ -66,8 +66,8 @@ def get_mask_from_gaps(gaps, shape):
 
 def score_cnn_performance(model:nn.Module,
                              test_loader,
-                             epi_threshold:float=0.1,
-                             device:str="cuda",
+                             epi_threshold,
+                             device,
                              )->plt.Axes:
   model.eval()
   testx, testy = np.meshgrid(np.arange(15), np.arange(15))
@@ -111,6 +111,7 @@ def score_cnn_performance(model:nn.Module,
   print(f"Mean MSE: {mean_mse}")
   print(f"Mean Sigma: {mean_sigma}")
   print(f"Percentage of samples classified correctly: {samples_correct / total_samples}")
+  print(f"Epi score {epi_scores}")
   return mean_mse, mean_sigma, samples_correct/total_samples, epi_scores
 
 if __name__ == "__main__":

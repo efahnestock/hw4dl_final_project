@@ -17,11 +17,11 @@ from hw4dl.tools.manage_models import save_model
 from torch.distributions.normal import Normal
 
 TOY_LAYER_SHAPES = {
-    "pixel": (1, 16, -1, 32, -1, 64, 128, 256, 'fc512', 'fc2'),
+    "pixel": (1, 16, -1, 32, -1, 64, 128, 'fc512', 'fc2'),
     "patch": (1, 16, -1, 32, -1, 64, 128, 256, 'fc512', 'fc18')
 }
-PIXEL_DATASET_PATH = '/data/vision/phillipi/perception/hw4dl_final_project/hw4dl/datasets/map2loc_pixel'
-PATCH_DATASET_PATH = '/data/vision/phillipi/perception/hw4dl_final_project/hw4dl/datasets/map2loc_patch'
+PIXEL_DATASET_PATH = 'datasets/map2loc_pixel'
+PATCH_DATASET_PATH = 'datasets/map2loc_patch'
 
 def make_sigma_positive(sigma):
   return torch.log(1 + torch.exp(sigma)) + 1e-6
@@ -39,7 +39,15 @@ def nll_loss(outputs, labels):
 
   return loss.mean()
 
-def eval(model, model_type, scramble_batches, loader, criterion, device):
+def eval(model, loader, criterion, device):
+    """
+    Evaluates the input model on the given test set.
+    :param model: A model of type VariableCNNBackbone
+    :param loader: A dataloader of type Map2Loc.
+    :param criterion: A loss object to calculate model loss
+    :param device: "cuda" or "cpu"
+    :return: Test loss calculated with the input criterion function.
+    """
     model.eval()
     total_loss = 0.0
     for inputs, labels in tqdm(loader):
@@ -53,6 +61,13 @@ def eval(model, model_type, scramble_batches, loader, criterion, device):
     return total_loss / len(loader)
 
 def train(args, device, save_path=None):
+    """
+    Trains a model (defined by the args argument).
+    :param args: A Namespace object, defined in run_cnn_experiment.py
+    :param device: "cuda" or "cpu"
+    :param save_path: Path to save checkpoints and model training results.
+    :return: None
+    """
     if args.task == "pixel":
         train_dataset = Map2Loc(root_dir=PIXEL_DATASET_PATH, csv_file='description.csv')
         test_dataset = Map2Loc(root_dir=PIXEL_DATASET_PATH + "_test", csv_file='description.csv')

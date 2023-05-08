@@ -44,6 +44,20 @@ def plot_network_performance(model:nn.Module,
   return fig, ax
 
 def plot_cnn_performance(model, test_loader, savedir,device, split_id):
+  """
+  Plot the results of CNN training. Outputs a grid of five plots:
+  1) A contour plot of the true mean function
+  2) A contour plot of the true variance function
+  3) A contour plot of the predicted function
+  4) A contour plot of the predicted variance
+  5) A contour plot of the epistemic variance
+  :param model: A model of type VariableCNNBackbone
+  :param test_loader: A dataloader of type Map2Loc.
+  :param savedir: Directory to save the output plots
+  :param device: "cuda" or "cpu"
+  :param split_id: Index of the layer at which the model splits into inference heads (refer to split_idx in shared_cnn.py).
+  :return: None
+  """
   from matplotlib.patches import Rectangle
 
   testx, testy = np.meshgrid(np.arange(15), np.arange(15))
@@ -101,6 +115,7 @@ def plot_cnn_performance(model, test_loader, savedir,device, split_id):
       x1, y1 = gap[0], gap[2]
       rect = Rectangle((x1, y1), width, height, linewidth=2, edgecolor='red', facecolor='none')
       axes[i].add_patch(rect)
+  plt.savefig(os.path.join(savedir, f"result_plot_split_{split_id}.png"))
   plt.savefig(os.path.join(savedir, f"result_plot_split_{split_id}.png"))
 
 if __name__ == "__main__":

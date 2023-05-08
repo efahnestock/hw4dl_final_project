@@ -14,7 +14,12 @@ class Map2Loc(Dataset):
     Dataset for map2loc task
     """
 
-    def __init__(self, root_dir, csv_file, transform=None):
+    def __init__(self, root_dir, csv_file):
+        """
+        Creates a Map2Loc Dataloader from a pregenerated dataset
+        :param root_dir: root directory containing the Map2Loc dataset.
+        :param csv_file: csv file containing file paths and metadata for the dataset.
+        """
 
         self.root_dir = root_dir
         self.df = pd.read_csv(os.path.join(self.root_dir, csv_file))
