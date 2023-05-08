@@ -1,4 +1,4 @@
-layer_shapes: [1, 16, -1, 32, -1, 64, 'fc512', 'fc18']
+layer_shapes: [16, -1, 32, -1, 64, 128, 'fc512', 'fc2']
 split_idx: 1
 num_heads: 5
 mode: parallel
