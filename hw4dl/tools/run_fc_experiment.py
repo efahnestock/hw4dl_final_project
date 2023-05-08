@@ -26,6 +26,19 @@ def set_all_seeds(seed):
   np.random.seed(seed)
 
 def run_experiment(exp_config:ExpConfig):
+  """
+  Run an experiment!
+  :param exp_config: The experiment configuration
+  Produces a directory in experiments with the following structure:
+  experiments
+  |__ exp_name
+      |__ config.json
+      |__ split_000
+      |   |__ model.pt
+      |   |__ config.json
+      |__ {}_performance.png
+      |__ results.csv
+  """
   exp_name = exp_config.name + "_" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
   base_exp_path = os.path.join(ROOT_DIR, "experiments", exp_name)
   # create experiment directory
@@ -33,7 +46,7 @@ def run_experiment(exp_config:ExpConfig):
   # save experiment config
   with open(os.path.join(base_exp_path, "config.json"), "w") as f:
     json.dump(exp_config._asdict(), f)
-
+  # create results dict
   results = dict(split_idx=[], mean_mse=[], sigma_mse=[], per_correct=[], epi_score=[])
 
   set_all_seeds(exp_config.seed)

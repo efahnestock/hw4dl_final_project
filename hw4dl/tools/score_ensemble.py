@@ -11,6 +11,12 @@ import torch
 #TODO: check valid interval points, calculate amount of lower,upper that it classified correctly
 
 def get_mask_from_intervals(intervals, x_values:np.ndarray):
+  """
+  Get a mask of the x_values that are in the intervals
+  :param intervals: The intervals to check
+  :param x_values: The x values to check
+  :return: A mask of the x values that are in the intervals 
+  """
   mask = np.zeros_like(x_values, dtype=bool)
   for interval in intervals:
     mask = np.logical_or(mask, np.logical_and(x_values >= interval[0], x_values <= interval[1]))
@@ -20,7 +26,15 @@ def score_network_performance(model:nn.Module,
                              toy_loader:PolyData,
                              epi_threshold:float=0.1,
                              device:str="cpu",
-                             )->plt.Axes:
+                             )->tuple[np.ndarray, np.ndarray, float, float]: 
+  """
+  Score ensemble performance on a toy dataset!
+  :param model: The model to score
+  :param toy_loader: The toy dataset
+  :param epi_threshold: The threshold to use for epistemic uncertainty. Deprecated
+  :param device: The device to run the model on
+  :return: A tuple of the mean MSE, mean sigma, percentage of samples classified correctly, and epistemic score
+  """
   samples = np.linspace(toy_loader.lower, toy_loader.upper, 1000)
   var = toy_loader.varf(samples)
   # ax.plot(samples, toy_loader.polyf(samples), label="True Function")

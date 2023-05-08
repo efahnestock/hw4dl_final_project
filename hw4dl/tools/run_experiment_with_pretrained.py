@@ -21,12 +21,20 @@ ExpConfig = namedtuple("exp_config",
                         ])
 
 def set_all_seeds(seed):
+  # this one doesn't deserve a docstring
   torch.manual_seed(seed)
   if torch.cuda.is_available():
     torch.cuda.manual_seed_all(seed)
   np.random.seed(seed)
 
 def run_experiment(exp_config:ExpConfig):
+  """
+  Run an experiment with a pretrained model!
+  :param exp_config: The experiment configuration
+
+  Same as run_fc_experiment except uses the models that are already trained
+  Overwrite the csv file and the plots 
+  """
   # exp_name = exp_config.name + "_" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
   base_path = os.path.join(ROOT_DIR, "experiments")
   # get most recent experiment directory
@@ -34,18 +42,20 @@ def run_experiment(exp_config:ExpConfig):
   dirs.sort(key=lambda x: os.path.getmtime(x))
   base_exp_path = dirs[-1]
 
-
+  # output results structure
   results = dict(split_idx=[], mean_mse=[], sigma_mse=[], per_correct=[], epi_score=[], shared_parameters=[], total_parameters=[])
 
   epistemic_sigmas = []
   samples = None
 
+  # fix the seeds
+  set_all_seeds(exp_config.seed)
+  # for each split index
   for split_idx in exp_config.split_indexes:
-    set_all_seeds(exp_config.seed)
 
     args = parse_options()
     args.split_idx = split_idx
-    args.device_type =  exp_config.device
+    args.device_type = exp_config.device
     args.scrambe_batches = True
     split_idx_dir= os.path.join(base_exp_path, f"split_{split_idx}")
 

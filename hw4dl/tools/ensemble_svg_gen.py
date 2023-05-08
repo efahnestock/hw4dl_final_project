@@ -1,3 +1,9 @@
+"""
+This file generates an svg of an ensemble network. It is not used in the final report, 
+but was used to generate the svg in the report.
+"""
+
+
 split_index = 0
 num_heads = 3
 network_shape = [1, 5, 5, 2]
