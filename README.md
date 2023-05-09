@@ -8,6 +8,10 @@ Run this from the top level directory (with `setup.py` in it)
 To run the fully connected experiments with the default parameters, run the following command from the top level directory:
 ```mkdir experiments && python hw4dl/tools/run_fc_experiment.py```
 
+## Training CNN experiments 
+To run the CNN experiments with the default parameters, run the following command from the top level directory:
+```mkdir experiments && python hw4dl/tools/run_cnn_experiment.py```
+
 # Running hardware 
 
 ## Convert PyTorch to Timeloop 
